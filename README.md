@@ -1,25 +1,13 @@
-# playground
+# The Gleam Language Tour
 
-[![Package Version](https://img.shields.io/hexpm/v/playground)](https://hex.pm/packages/playground)
-[![Hex Docs](https://img.shields.io/badge/hex-docs-ffaff3)](https://hexdocs.pm/playground/)
-
-```sh
-gleam add playground
-```
-```gleam
-import playground
-
-pub fn main() {
-  // TODO: An example of the project in use
-}
-```
-
-Further documentation can be found at <https://hexdocs.pm/playground>.
-
-## Development
+An interactive tour of the Gleam programming language.
 
 ```sh
-gleam run   # Run the project
-gleam test  # Run the tests
-gleam shell # Run an Erlang shell
+# Download a wasm version of the Gleam compiler
+./bin/download-compiler
+
+# Build the site
+gleam run
+
+# It's now all the in `public/` directory
 ```

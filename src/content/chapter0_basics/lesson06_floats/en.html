@@ -1,0 +1,32 @@
+<p>Gleam's <code>Float</code> type represents numbers that are not integers.</p>
+<p>
+  Gleam's numerical operators are not overloaded, so there are dedicated
+  operators for working with floats.
+</p>
+<p>
+  Floats are represented as 64 bit floating point numbers on both the Erlang and
+  JavaScript runtimes. The floating point behaviour is native to their
+  respective runtimes, so their exact behaviour will be slightly different
+  on the two runtimes.
+</p>
+<p>
+  Under the JavaScript runtime, exceeding the maximum (or minimum) representable
+  value for a floating point value will result in <code>Infinity</code> (or
+  <code>-Infinity</code>). Should you try to divide two infinities you will
+  get <code>NaN</code> as a result.
+</p>
+<p>
+  When running on the BEAM any overflow will raise an error. So there is
+  no <code>NaN</code> or <code>Infinity</code> float value in the Erlang
+  runtime.
+</p>
+<p>
+  Division by zero will not overflow, but is instead defined to be zero.
+</p>
+<p>
+  The 
+  <a href="https://hexdocs.pm/gleam_stdlib/gleam/float.html" target="_blank">
+    <code>gleam/float</code>
+  </a> 
+  standard library module contains functions for working with floats.
+</p>

@@ -1,0 +1,354 @@
+/*
+ * /everything page
+ * inline chapters & lessons
+ */
+
+body {
+  /* max-height: 100%; */
+  overflow: hidden;
+  min-height: 100vh;
+  /* mobile viewport bug fix */
+  min-height: -webkit-fill-available;
+}
+
+html {
+  min-height: -webkit-fill-available;
+}
+
+/* set navbar to position: fixed */
+.navbar {
+  z-index: 100;
+  position: fixed;
+  inset: 0;
+  bottom: 0;
+}
+
+/* everything wrapper, 2x2 responsive grid layout */
+main#everything {
+  display: grid;
+  max-height: 100%;
+  min-height: -webkit-fill-available;
+  /* height: -webkit-fill-available; */
+  grid-template-columns: minmax(0, max-content) 1fr;
+  overflow: hidden;
+  padding-top: var(--navbar-height);
+}
+
+p,
+a {
+  margin: var(--gap) 0;
+  font-size: var(--font-size-normal);
+  line-height: var(--gap-double);
+  font-weight: 400;
+}
+
+code {
+  font-size: var(--font-size-small);
+}
+
+h1,
+h2,
+h3 {
+  margin: 0;
+}
+
+#everything-contents,
+#everything-lessons {
+  grid-column-end: span 1;
+  grid-row: 1 / span 1;
+  max-height: 100%;
+  padding: var(--gap);
+  padding-bottom: var(--gap-double);
+  overflow-y: auto;
+  display: flex;
+  background: var(--color-background);
+  flex-direction: column;
+  position: relative;
+}
+
+/* table of contents on the left, scrollable */
+#everything-contents {
+  grid-column-start: 1;
+  padding-bottom: var(--gap-quad);
+  gap: var(--gap-double);
+}
+
+#everything-contents::before {
+  position: fixed;
+}
+
+#everything-contents * {
+  margin: 0;
+}
+
+#everything-contents .chapter {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap);
+}
+
+#everything-contents .chapter h3 {
+  white-space: nowrap;
+}
+
+#everything-contents .chapter ul,
+#everything-contents .chapter li {
+  list-style: none;
+  padding: 0;
+  color: var(--color-text-secondary);
+}
+
+#everything-contents .chapter ul {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-half);
+}
+
+#everything-lessons {
+  grid-column-start: 2;
+  container-type: inline-size;
+  container-name: lessons-list;
+  padding-top: 0;
+  scroll-behavior: smooth;
+  scroll-snap-type: y proximity;
+  scroll-padding-block-start: calc(2 * var(--navbar-height));
+}
+
+#everything-lessons .chapter-title {
+  margin: 0;
+  padding-top: var(--gap);
+  color: var(--color-text-accent);
+  position: sticky;
+  height: var(--gap-triple);
+  top: 0;
+  background: var(--color-background);
+  z-index: 3;
+}
+
+#everything-lessons .chapter-title:first-child {
+  margin-top: 0;
+}
+
+#everything-lessons .lesson {
+  margin: var(--gap) 0;
+  padding: var(--gap) 0;
+  padding-bottom: var(--gap-triple);
+  scroll-snap-align: center top;
+}
+
+#everything-lessons .lesson-title {
+  position: sticky;
+  top: var(--gap-triple);
+  background: var(--color-background);
+  color: var(--color-link);
+  z-index: 2;
+  padding: var(--gap) 0;
+  margin-bottom: var(--gap-double);
+}
+
+#everything-lessons .lesson:target {
+  animation: highlight-block 900ms ease-in-out 300ms 1;
+}
+
+#everything-lessons .lesson:target .lesson-title {
+  animation: highlight-text 900ms ease-in-out 300ms 1;
+}
+
+#everything-lessons .lesson-snippet {
+  padding: var(--gap);
+  margin-right: var(--gap);
+  margin-top: var(--gap-double);
+  position: relative;
+  background: var(--code-background);
+  box-shadow: var(--drop-shadow);
+}
+
+#everything-lessons .lesson-snippet code {
+  overflow-x: auto;
+  display: inline-block;
+  width: 100%;
+  padding: var(--gap);
+  padding-bottom: var(--gap-double);
+}
+
+#everything-lessons .lesson-snippet-link {
+  background: var(--color-accent-muted);
+  margin: 0;
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  padding: var(--gap-half) var(--gap);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--gap);
+  font-size: var(--font-size-small);
+  color: var(--color-link);
+  border-radius: none;
+  text-decoration: none;
+  outline: 1px solid transparent;
+  outline-offset: -1px;
+  cursor: pointer;
+}
+
+#everything-lessons hr {
+  width: 100%;
+  height: 1px;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  display: block;
+}
+
+#everything-lessons .lesson-separator {
+  border-top: 1px solid var(--color-accent-muted);
+}
+
+#everything-lessons .chapter-separator {
+  border-top: 1px solid var(--color-accent);
+  position: sticky;
+  top: calc(var(--gap-triple) - 1px);
+  z-index: 3;
+}
+
+@media only screen and (min-width: 1100px) {
+  #everything {
+    grid-template-columns: minmax(min-content, max-content) 1fr;
+  }
+
+  #everything-contents {
+    padding: var(--gap) var(--gap-double) var(--gap-quad) var(--gap);
+  }
+
+  #everything-contents .chapter ul {
+    padding-left: var(--gap);
+  }
+}
+
+/* transform contents as to a side menu  */
+@media only screen and (max-width: 768px) {
+  #everything-contents {
+    display: none;
+  }
+
+  .theme-light #everything-contents::after {
+    filter: contrast(1);
+  }
+
+  #everything-lessons {
+    grid-column: 1 / span 2;
+    padding-bottom: var(--gap-quad);
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  #everything-lessons .lesson,
+  #everything-lessons .chapter-title,
+  #everything-lessons .chapter-separator {
+    padding-left: var(--gap);
+    padding-right: var(--gap);
+  }
+
+  #everything-lessons .lesson-snippet code {
+    padding: var(--gap);
+  }
+}
+
+@container lessons-list (min-width: 900px) {
+  #everything-lessons .lesson,
+  #everything-lessons .chapter-title {
+    padding-right: var(--gap-quad);
+    padding-left: var(--gap-quad);
+  }
+
+  #everything-lessons .chapter-separator {
+    margin-left: var(--gap-quad);
+    margin-right: var(--gap-quad);
+    width: calc(100% - var(--gap-quad) * 2);
+  }
+}
+
+@keyframes highlight-text {
+  0% {
+    text-decoration: underline;
+    text-decoration-color: transparent;
+  }
+
+  50% {
+    text-decoration: underline;
+    text-decoration-color: var(--color-accent);
+    color: var(--color-accent-text);
+    background: var(--color-accent-muted);
+  }
+
+  100% {
+    text-decoration: underline;
+    text-decoration-color: transparent;
+  }
+}
+
+@keyframes highlight-block {
+  0% {
+  }
+
+  50% {
+    background: var(--color-accent-muted);
+  }
+
+  100% {
+  }
+}
+
+@keyframes reveal {
+  0% {
+    overflow: unset;
+  }
+
+  99% {
+    overflow: unset;
+  }
+
+  100% {
+    overflow-y: auto;
+  }
+}
+
+@media print {
+  body#page-everything {
+    overflow: visible;
+    float: none;
+    display: inline;
+  }
+
+  aside#everything-contents {
+    display: none;
+  }
+
+  nav.navbar {
+    position: unset;
+  }
+
+  main#everything {
+    max-height: unset;
+    overflow: visible;
+    display: inline;
+  }
+
+  section#everything-lessons {
+    max-height: unset;
+    overflow: visible;
+    display: inline;
+  }
+
+  h3.chapter-title:not(:first-child) {
+    break-before: always;
+  }
+
+  article.lesson:not(hr.chapter-separator + article.lesson) {
+    break-inside: avoid;
+  }
+
+  #everything-lessons .lesson-snippet-link {
+    display: none;
+  }
+}
