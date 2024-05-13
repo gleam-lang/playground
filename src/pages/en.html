@@ -1,8 +1,33 @@
-<article id="playground">
-  <section id="right">
-    <section id="editor">
-      <div id="editor-target"></div>
-    </section>
-    <aside id="output"></aside>
+<article id="playground-container">
+  <section id="playground">
+    <div id="playground-header">
+      <input id="title-input" type="text" name="title" value="A Gleam Playground project">
+      <button id="share-button" type="share">Share</button>
+    </div>
+
+    <div id="playground-content">
+      <section id="editor">
+        <div id="editor-target"></div>
+      </section>
+
+      <div id="output-container">
+        <div id="tabs">
+          <label class="tab">
+            <p>Output</p>
+            <input type="radio" name="output-display" value="output" hidden checked>
+          </label>
+          <label class="tab">
+            <p>Compiled Erlang</p>
+            <input type="radio" name="output-display" value="erlang" hidden>
+          </label>
+          <label class="tab">
+            <p>Compiled JavaScript</p>
+            <input type="radio" name="output-display" value="javascript" hidden>
+          </label>
+        </div>
+
+        <aside id="output"></aside>
+      </div>
+    </div>
   </section>
 </article>
