@@ -131,13 +131,52 @@ editor.onUpdate(debounce((code) => sendToWorker(code), 200));
 // Title and hash
 const titleInput = document.querySelector("#title-input");
 
+/**
+ * Hashed object format:
+ * {
+ *   version: 1,
+ *   content: "code"
+ * }
+ */
+function makeV1Hash(code) {
+  return lz.compressToBase64(JSON.stringify({
+    version: 1,
+    content: code,
+  }));
+}
+
+function parseV1Hash(obj) {
+  if (obj.version !== 1) {
+    throw new Error("Unsupported version");
+  }
+  return obj.content;
+}
+
+function parseHash(hash) {
+  let obj;
+  try {
+    obj = JSON.parse(lz.decompressFromBase64(hash));
+  } catch (e) {
+    return null;
+  }
+  if (!obj) {
+    return null;
+  }
+  switch (obj.version) {
+    case 1:
+      return parseV1Hash(obj);
+  }
+  return null
+}
+
+
 // Get the title from the query string if it exists,
 // otherwise use the title input value (so we can set the default in the HTML)
 titleInput.value = new URLSearchParams(window.location.search).get("title") || titleInput.value;
 
 if (window.location.hash) {
   const hash = window.location.hash.slice(1);
-  const code = lz.decompressFromBase64(hash);
+  const code = parseHash(hash);
   if (code) {
     editor.updateCode(code);
   }
@@ -147,7 +186,7 @@ const shareButton = document.querySelector("#share-button");
 
 function share() {
   const code = editor.getCode();
-  const compressed = lz.compressToBase64(code);
+  const compressed = makeV1Hash(code);
   const url = `${window.location.origin}${window.location.pathname}?title=${titleInput.value}#${compressed}`;
   navigator.clipboard.writeText(url);
   shareButton.textContent = "Copied!";
