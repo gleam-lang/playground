@@ -1,4 +1,4 @@
-#output>*,
+.output>*,
 #editor .codeflask__flatten {
   padding: var(--gap);
 }
@@ -86,9 +86,26 @@
   background: var(--color-background-dim);
 }
 
-#output>* {
+.output {
+  /* Only display if radio is checked */
+  display: none;
+}
+
+.output>* {
   margin: 0;
   white-space: pre-wrap;
+}
+
+#output-container:has(#output-radio:checked)>#output {
+  display: block;
+}
+
+#output-container:has(#compiled-javascript-radio:checked)>#compiled-javascript {
+  display: block;
+}
+
+#output-container:has(#compiled-erlang-radio:checked)>#compiled-erlang {
+  display: block;
 }
 
 #share-button {
