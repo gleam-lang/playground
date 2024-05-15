@@ -1,7 +1,14 @@
 import CodeFlask from "https://cdn.jsdelivr.net/npm/codeflask@1.4.1/+esm";
+import hljs from "https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/es/highlight.min.js";
+import js from "https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/es/languages/javascript.min.js";
+// import erlang from "https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/es/languages/erlang.min.js";
 
 console.log(CodeFlask);
 globalThis.CodeFlask = CodeFlask;
+globalThis.hljs = hljs;
+
+hljs.registerLanguage("javascript", js);
+// hljs.registerLanguage("erlang", erlang);
 
 const output = document.querySelector("#output");
 const compiledJavascript = document.querySelector("#compiled-javascript");
@@ -50,9 +57,19 @@ function clearElement(target) {
 function appendCode(target, content, className) {
   if (!content) return;
   const element = document.createElement("pre");
-  element.textContent = content;
+  const code = document.createElement("code");
+  code.textContent = content;
+  // code.className = className;
+  element.appendChild(code);
+  // element.textContent = content;
   element.className = className;
   target.appendChild(element);
+}
+
+function highlightOutput(target, childClassName) {
+  target.querySelectorAll(`.${childClassName}`).forEach((element) => {
+    hljs.highlightElement(element);
+  })
 }
 
 const editor = new CodeFlask("#editor-target", {
@@ -95,6 +112,8 @@ worker.onmessage = (event) => {
   if (result.log) appendCode(output, result.log, "log");
   if (result.error) appendCode(output, result.error, "error");
   if (result.js) appendCode(compiledJavascript, result.js, "javascript");
+  highlightOutput(compiledJavascript, "javascript");
+  // highlightOutput(compiledErlang, "erlang");
   for (const warning of result.warnings || []) {
     appendCode(warning, "warning");
   }
