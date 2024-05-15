@@ -1,6 +1,8 @@
 import CodeFlask from "https://cdn.jsdelivr.net/npm/codeflask@1.4.1/+esm";
 import hljs from "https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/es/highlight.min.js";
 import js from "https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/es/languages/javascript.min.js";
+// TODO: add Erlang support once we have the precompiled stdlib
+// in the browser
 // import erlang from "https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/es/languages/erlang.min.js";
 import lz from "https://cdn.jsdelivr.net/npm/lz-string@1.5.0/+esm";
 
@@ -173,6 +175,7 @@ function parseHash(hash) {
 // Get the title from the query string if it exists,
 // otherwise use the title input value (so we can set the default in the HTML)
 titleInput.value = new URLSearchParams(window.location.search).get("title") || titleInput.value;
+document.title = `${titleInput.value} - The Gleam Playground`;
 
 if (window.location.hash) {
   const hash = window.location.hash.slice(1);

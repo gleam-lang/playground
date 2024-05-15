@@ -181,7 +181,7 @@ pub type PageConfig {
   )
 }
 
-/// Renders a page in the language tour
+/// Renders a page
 pub fn render_page_html(page config: PageConfig) -> Html {
   // add path-specific class to body to make styling easier
   let body_class = #("id", "page" <> string.replace(config.path, "/", "-"))
@@ -191,7 +191,7 @@ pub fn render_page_html(page config: PageConfig) -> Html {
     head: HeadConfig(
       description: "An interactive introduction and reference to the Gleam programming language. Learn Gleam in your browser!",
       image: "https://gleam.run/images/og-image.png",
-      title: config.title <> " - The Gleam Language Tour",
+      title: "The Gleam Playground",
       url: "https://tour.gleam.run/" <> config.path,
       path: config.path,
       meta: [],

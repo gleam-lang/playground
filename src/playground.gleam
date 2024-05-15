@@ -65,8 +65,6 @@ pub fn main() {
     use _ <- result.try(write_pages(pages))
 
     io.debug("Done rendering pages")
-    // use p <- result.try(load_content())
-    // use _ <- result.try(write_content(p))
     Ok(Nil)
   }
 
@@ -371,7 +369,7 @@ const css_defaults_code = [css_syntax_highlight, css_scheme_atom_one]
 
 /// Renders the navbar with common links
 fn render_navbar() -> Html {
-  widgets.navbar(titled: "Gleam Language Tour", links: [
+  widgets.navbar(titled: "Gleam Playground", links: [
     Link(label: "gleam.run", to: "http://gleam.run"),
   ])
 }
