@@ -351,7 +351,7 @@ const css_defaults_page = [css_fonts, css_theme, css__gleam_common, css_layout]
 const css_root = "/css/root.css"
 
 // Path to the css speciic to to lesson & main pages
-const css_lesson_page = "/css/pages/lesson.css"
+const css_playground_page = "/css/pages/playground.css"
 
 // Defines code syntax highlighting for highlightJS & CodeFlash
 // based on dark / light mode and the currenly loaded color scheme
@@ -395,7 +395,7 @@ fn render_page_object(page: Page) -> String {
     stylesheets: list.flatten([
       css_defaults_page,
       css_defaults_code,
-      [css_root, css_lesson_page],
+      [css_root, css_playground_page],
     ]),
     static_content: [render_navbar()],
     content: [
