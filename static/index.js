@@ -2,8 +2,8 @@ import CodeFlask from "https://cdn.jsdelivr.net/npm/codeflask@1.4.1/+esm";
 import hljs from "https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/es/highlight.min.js";
 import js from "https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/es/languages/javascript.min.js";
 // import erlang from "https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/es/languages/erlang.min.js";
+import lz from "https://cdn.jsdelivr.net/npm/lz-string@1.5.0/+esm";
 
-console.log(CodeFlask);
 globalThis.CodeFlask = CodeFlask;
 globalThis.hljs = hljs;
 
@@ -59,17 +59,19 @@ function appendCode(target, content, className) {
   const element = document.createElement("pre");
   const code = document.createElement("code");
   code.textContent = content;
-  // code.className = className;
   element.appendChild(code);
-  // element.textContent = content;
   element.className = className;
   target.appendChild(element);
 }
 
 function highlightOutput(target, childClassName) {
+  // Disable annoying warnings from hljs
+  const warn = console.warn;
+  console.warn = () => { };
   target.querySelectorAll(`.${childClassName}`).forEach((element) => {
     hljs.highlightElement(element);
   })
+  console.warn = warn;
 }
 
 const editor = new CodeFlask("#editor-target", {
@@ -125,3 +127,32 @@ worker.onmessage = (event) => {
 };
 
 editor.onUpdate(debounce((code) => sendToWorker(code), 200));
+
+// Title and hash
+const titleInput = document.querySelector("#title-input");
+
+// Get the title from the query string if it exists,
+// otherwise use the title input value (so we can set the default in the HTML)
+titleInput.value = new URLSearchParams(window.location.search).get("title") || titleInput.value;
+
+if (window.location.hash) {
+  const hash = window.location.hash.slice(1);
+  const code = lz.decompressFromBase64(hash);
+  if (code) {
+    editor.updateCode(code);
+  }
+}
+
+const shareButton = document.querySelector("#share-button");
+
+function share() {
+  const code = editor.getCode();
+  const compressed = lz.compressToBase64(code);
+  const url = `${window.location.origin}${window.location.pathname}?title=${titleInput.value}#${compressed}`;
+  navigator.clipboard.writeText(url);
+  shareButton.textContent = "Copied!";
+  setTimeout(() => {
+    shareButton.textContent = "Share";
+  }, 1000);
+}
+shareButton.addEventListener("click", share);
