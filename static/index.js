@@ -4,6 +4,8 @@ console.log(CodeFlask);
 globalThis.CodeFlask = CodeFlask;
 
 const output = document.querySelector("#output");
+const compiledJavascript = document.querySelector("#compiled-javascript");
+// const compiledErlang = document.querySelector("#compiled-erlang");
 const initialCode = document.querySelector("#code").innerHTML;
 
 const prismGrammar = {
@@ -39,18 +41,18 @@ const prismGrammar = {
     /\b(?:0b[0-1]+|0o[0-7]+|[[:digit:]][[:digit:]_]*(\\.[[:digit:]]*)?|0x[[:xdigit:]]+)\b/,
 };
 
-function clearOutput() {
-  while (output.firstChild) {
-    output.removeChild(output.firstChild);
+function clearElement(target) {
+  while (target.firstChild) {
+    target.removeChild(target.firstChild);
   }
 }
 
-function appendOutput(content, className) {
+function appendCode(target, content, className) {
   if (!content) return;
   const element = document.createElement("pre");
   element.textContent = content;
   element.className = className;
-  output.appendChild(element);
+  target.appendChild(element);
 }
 
 const editor = new CodeFlask("#editor-target", {
@@ -88,11 +90,13 @@ function sendToWorker(code) {
 worker.onmessage = (event) => {
   // Handle the result of the compilation and execution
   const result = event.data;
-  clearOutput();
-  if (result.log) appendOutput(result.log, "log");
-  if (result.error) appendOutput(result.error, "error");
+  clearElement(output);
+  clearElement(compiledJavascript);
+  if (result.log) appendCode(output, result.log, "log");
+  if (result.error) appendCode(output, result.error, "error");
+  if (result.js) appendCode(compiledJavascript, result.js, "javascript");
   for (const warning of result.warnings || []) {
-    appendOutput(warning, "warning");
+    appendCode(warning, "warning");
   }
 
   // Deal with any queued work

@@ -1,7 +1,12 @@
 <article id="playground-container">
   <section id="playground">
     <div id="playground-header">
-      <input id="title-input" type="text" name="title" value="A Gleam Playground project">
+      <input
+        id="title-input"
+        type="text"
+        name="title"
+        value="A Gleam Playground project"
+      >
       <button id="share-button" type="share">Share</button>
     </div>
 
@@ -14,19 +19,34 @@
         <div id="tabs">
           <label class="tab">
             <p>Output</p>
-            <input type="radio" name="output-display" value="output" hidden checked>
+            <input
+              id="output-radio"
+              type="radio"
+              name="output-display"
+              value="output"
+              hidden
+              checked
+            >
           </label>
-          <label class="tab">
-            <p>Compiled Erlang</p>
-            <input type="radio" name="output-display" value="erlang" hidden>
-          </label>
+          <!-- TODO: enable Erlang when stdlib is precompiled -->
+          <!-- <label class="tab"> -->
+          <!--   <p>Compiled Erlang</p> -->
+          <!--   <input type="radio" name="output-display" value="erlang" hidden> -->
+          <!-- </label> -->
           <label class="tab">
             <p>Compiled JavaScript</p>
-            <input type="radio" name="output-display" value="javascript" hidden>
+            <input
+              id="compiled-javascript-radio"
+              type="radio"
+              name="output-display"
+              value="javascript"
+              hidden
+            >
           </label>
         </div>
 
-        <aside id="output"></aside>
+        <aside id="output" class="output"></aside>
+        <aside id="compiled-javascript" class="output"></aside>
       </div>
     </div>
   </section>
