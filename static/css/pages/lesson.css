@@ -3,6 +3,10 @@
   padding: var(--gap);
 }
 
+#playground-container {
+  height: calc(100dvh - var(--navbar-height));
+}
+
 #playground {
   display: flex;
   flex-direction: column;
@@ -82,13 +86,15 @@
 }
 
 #output-container {
-  min-height: 1rem;
+  height: 30dvh;
   background: var(--color-background-dim);
 }
 
 .output {
   /* Only display if radio is checked */
   display: none;
+  max-height: calc(100% - 4 * var(--gap));
+  overflow: auto;
 }
 
 .output>* {
@@ -124,10 +130,6 @@
 
 /* Larger than mobile */
 @media (min-width: 768px) {
-  #playground-container {
-    height: calc(100dvh - var(--navbar-height));
-  }
-
   #playground-content {
     border-left: 1px solid var(--color-accent-muted);
     flex-direction: row;
@@ -138,6 +140,7 @@
   }
 
   #output-container {
+    height: unset;
     width: 50%;
     overflow: auto;
     border: none;
