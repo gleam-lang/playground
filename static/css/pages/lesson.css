@@ -96,6 +96,10 @@
   white-space: pre-wrap;
 }
 
+.output>pre {
+  background: none !important;
+}
+
 #output-container:has(#output-radio:checked)>#output {
   display: block;
 }

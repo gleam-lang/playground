@@ -5,13 +5,13 @@ import gleam/result
 import gleam/string
 import gleam/string_builder
 import htmb.{type Html, h}
-import simplifile
-import snag
-import playground/widgets.{Link}
 import playground/html.{
   PageConfig, ScriptConfig, ScriptOptions, html_dangerous_inline_script,
   html_script, render_page,
 }
+import playground/widgets.{Link}
+import simplifile
+import snag
 
 const static = "static"
 
