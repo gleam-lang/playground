@@ -1,6 +1,6 @@
-# The Gleam Language Tour
+# The Gleam Playground
 
-An interactive tour of the Gleam programming language.
+An interactive playground for the Gleam language.
 
 ```sh
 # Download a wasm version of the Gleam compiler
