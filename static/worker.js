@@ -36,9 +36,7 @@ async function compileEval(code) {
   const result = {
     log: null,
     js: null,
-    // TODO: add Erlang support once we have the precompiled stdlib
-    // in the browser
-    // erl: null,
+    erlang: null,
     error: null,
     warnings: [],
   };
@@ -47,13 +45,13 @@ async function compileEval(code) {
     project.writeModule("main", code);
     project.compilePackage("javascript");
     const js = project.readCompiledJavaScript("main");
-    // project.compilePackage("erlang");
-    // const erl = project.readCompiledErlang("main");
+    project.compilePackage("erlang");
+    const erlang = project.readCompiledErlang("main");
     const main = await loadProgram(js);
     if (main) main();
 
     result.js = js;
-    // result.erl = erl;
+    result.erlang = erlang;
   } catch (error) {
     console.error(error);
     result.error = error.toString();

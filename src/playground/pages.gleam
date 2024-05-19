@@ -22,6 +22,10 @@ fn output_tab(label: String, id: String, value: String, checked: Bool) -> Html {
   ])
 }
 
+fn output_container(id: String, class: String) -> Html {
+  h("aside", [#("id", id), #("class", class)], [])
+}
+
 pub fn home_page() -> Html {
   h("article", [#("id", "playground-container")], [
     h("section", [#("id", "playground")], [
@@ -46,12 +50,12 @@ pub fn home_page() -> Html {
         h("div", [#("id", "output-container")], [
           h("div", [#("id", "tabs")], [
             output_tab("Output", "output-radio", "output", True),
-            // output_tab(
-            //   "Compiled Erlang",
-            //   "compiled-erlang-radio",
-            //   "erlang",
-            //   False,
-            // ),
+            output_tab(
+              "Compiled Erlang",
+              "compiled-erlang-radio",
+              "erlang",
+              False,
+            ),
             output_tab(
               "Compiled JavaScript",
               "compiled-javascript-radio",
@@ -59,15 +63,9 @@ pub fn home_page() -> Html {
               False,
             ),
           ]),
-          h("aside", [#("id", "output"), #("class", "output")], []),
-          h(
-            "aside",
-            [
-              #("id", "compiled-javascript"),
-              #("class", "output language-javascript"),
-            ],
-            [],
-          ),
+          output_container("output", "output"),
+          output_container("compiled-erlang", "output language-erlang"),
+          output_container("compiled-javascript", "output language-javascript"),
         ]),
       ]),
     ]),
