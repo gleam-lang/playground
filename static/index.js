@@ -1,20 +1,18 @@
 import CodeFlask from "https://cdn.jsdelivr.net/npm/codeflask@1.4.1/+esm";
 import hljs from "https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/es/highlight.min.js";
 import js from "https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/es/languages/javascript.min.js";
-// TODO: add Erlang support once we have the precompiled stdlib
-// in the browser
-// import erlang from "https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/es/languages/erlang.min.js";
+import erlang from "https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/es/languages/erlang.min.js";
 import lz from "https://cdn.jsdelivr.net/npm/lz-string@1.5.0/+esm";
 
 globalThis.CodeFlask = CodeFlask;
 globalThis.hljs = hljs;
 
 hljs.registerLanguage("javascript", js);
-// hljs.registerLanguage("erlang", erlang);
+hljs.registerLanguage("erlang", erlang);
 
 const outputEl = document.querySelector("#output");
 const compiledJavascriptEl = document.querySelector("#compiled-javascript");
-// const compiledErlangEl = document.querySelector("#compiled-erlang");
+const compiledErlangEl = document.querySelector("#compiled-erlang");
 const initialCode = document.querySelector("#code").innerHTML;
 
 const prismGrammar = {
@@ -113,7 +111,7 @@ worker.onmessage = (event) => {
   const result = event.data;
   clearElement(outputEl);
   clearElement(compiledJavascriptEl);
-  // clearElement(compiledErlangEl);
+  clearElement(compiledErlangEl);
   if (result.log) {
     appendCode(outputEl, result.log, "log");
   }
@@ -123,12 +121,15 @@ worker.onmessage = (event) => {
   if (result.js) {
     appendCode(compiledJavascriptEl, result.js, "javascript");
   }
+  if (result.erlang) {
+    appendCode(compiledErlangEl, result.erlang, "erlang");
+  }
   for (const warning of result.warnings || []) {
     appendCode(outputEl, warning, "warning");
   }
 
   highlightOutput(compiledJavascriptEl, "javascript");
-  // highlightOutput(compiledErlangEl, "erlang");
+  highlightOutput(compiledErlangEl, "erlang");
 
   // Deal with any queued work
   workerWorking = false;

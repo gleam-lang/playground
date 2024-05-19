@@ -192,9 +192,6 @@ fn generate_stdlib_bundle(modules: List(String)) -> snag.Result(Nil) {
         |> string.replace("`", "\\`")
         |> string.split("\n")
         |> list.filter(fn(line) { !string.starts_with(string.trim(line), "//") })
-        |> list.filter(fn(line) {
-          !string.starts_with(line, "@external(erlang")
-        })
         |> list.filter(fn(line) { line != "" })
         |> string.join("\n")
 
