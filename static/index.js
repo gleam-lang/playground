@@ -12,9 +12,9 @@ globalThis.hljs = hljs;
 hljs.registerLanguage("javascript", js);
 // hljs.registerLanguage("erlang", erlang);
 
-const output = document.querySelector("#output");
-const compiledJavascript = document.querySelector("#compiled-javascript");
-// const compiledErlang = document.querySelector("#compiled-erlang");
+const outputEl = document.querySelector("#output");
+const compiledJavascriptEl = document.querySelector("#compiled-javascript");
+// const compiledErlangEl = document.querySelector("#compiled-erlang");
 const initialCode = document.querySelector("#code").innerHTML;
 
 const prismGrammar = {
@@ -111,16 +111,24 @@ function sendToWorker(code) {
 worker.onmessage = (event) => {
   // Handle the result of the compilation and execution
   const result = event.data;
-  clearElement(output);
-  clearElement(compiledJavascript);
-  if (result.log) appendCode(output, result.log, "log");
-  if (result.error) appendCode(output, result.error, "error");
-  if (result.js) appendCode(compiledJavascript, result.js, "javascript");
-  highlightOutput(compiledJavascript, "javascript");
-  // highlightOutput(compiledErlang, "erlang");
-  for (const warning of result.warnings || []) {
-    appendCode(warning, "warning");
+  clearElement(outputEl);
+  clearElement(compiledJavascriptEl);
+  // clearElement(compiledErlangEl);
+  if (result.log) {
+    appendCode(outputEl, result.log, "log");
   }
+  if (result.error) {
+    appendCode(outputEl, result.error, "error");
+  }
+  if (result.js) {
+    appendCode(compiledJavascriptEl, result.js, "javascript");
+  }
+  for (const warning of result.warnings || []) {
+    appendCode(outputEl, warning, "warning");
+  }
+
+  highlightOutput(compiledJavascriptEl, "javascript");
+  // highlightOutput(compiledErlangEl, "erlang");
 
   // Deal with any queued work
   workerWorking = false;
