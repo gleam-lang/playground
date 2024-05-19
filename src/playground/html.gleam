@@ -189,10 +189,10 @@ pub fn render_page_html(page config: PageConfig) -> Html {
   // render html
   html(HtmlConfig(
     head: HeadConfig(
-      description: "An interactive introduction and reference to the Gleam programming language. Learn Gleam in your browser!",
+      description: "A playground for the Gleam programming language. Write, run, and share Gleam code in your browser.",
       image: "https://gleam.run/images/og-image.png",
       title: "The Gleam Playground",
-      url: "https://tour.gleam.run/" <> config.path,
+      url: "https://play.gleam.run" <> config.path,
       path: config.path,
       meta: [],
       stylesheets: config.stylesheets,
@@ -200,7 +200,7 @@ pub fn render_page_html(page config: PageConfig) -> Html {
         html_script(
           "https://plausible.io/js/script.js",
           ScriptOptions(defer: True, module: False),
-          [#("data-domain", "tour.gleam.run")],
+          [#("data-domain", "play.gleam.run")],
         ),
         ..config.scripts.head
       ],

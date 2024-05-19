@@ -184,7 +184,7 @@ pub fn text_link(
   anchor(link.to, link_attributes, [text(link.label)])
 }
 
-/// Renders the tour's navbar as html
+/// Renders the playground's navbar as html
 pub fn navbar(titled title: String, links links: List(Link)) -> Html {
   let links = list.map(links, fn(l) { text_link(l, []) })
 
@@ -204,9 +204,4 @@ pub fn navbar(titled title: String, links links: List(Link)) -> Html {
     ]),
     h("div", [#("class", "nav-right")], nav_right_items),
   ])
-}
-
-/// Renders a horizontal separator
-pub fn separator(class: String) -> Html {
-  h("hr", [#("class", class <> "-separator")], [])
 }

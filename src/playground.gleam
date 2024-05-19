@@ -9,6 +9,7 @@ import playground/html.{
   PageConfig, ScriptConfig, ScriptOptions, html_dangerous_inline_script,
   html_script, render_page,
 }
+import playground/pages.{home_page}
 import playground/widgets.{Link}
 import simplifile
 import snag
@@ -31,8 +32,6 @@ const compiler_wasm = "./wasm-compiler"
 
 const home_title = "Gleam Playground"
 
-const pages_path = "src/pages"
-
 const hello_joe = "import gleam/io
 
 pub fn main() {
@@ -44,27 +43,15 @@ pub fn main() {
 
 const path_home = "/"
 
-// Don't include deprecated stdlib modules
-const skipped_stdlib_modules = [
-  "bit_string.gleam", "bit_builder.gleam", "map.gleam",
-]
-
 pub fn main() {
-  let _ = {
-    use f <- result.try(load_file_names(pages_path, []))
-    io.debug(read_pages(f))
-  }
-
   let result = {
     use _ <- result.try(reset_output())
     use _ <- result.try(make_prelude_available())
     use _ <- result.try(make_stdlib_available())
     use _ <- result.try(copy_wasm_compiler())
-    use filenames <- result.try(load_file_names(pages_path, []))
-    use pages <- result.try(read_pages(filenames))
+    use pages <- result.try(get_pages())
     use _ <- result.try(write_pages(pages))
 
-    io.debug("Done rendering pages")
     Ok(Nil)
   }
 
@@ -82,72 +69,14 @@ type FileNames {
   FileNames(path: String, name: String, slug: String)
 }
 
-/// Recursively list files in a directory
-fn load_file_names(
-  path: String,
-  filenames: List(FileNames),
-) -> snag.Result(List(FileNames)) {
-  use files <- result.try(
-    simplifile.read_directory(path)
-    |> file_error("Failed to read directory " <> path),
-  )
-
-  files
-  |> list.filter(fn(file) { !string.starts_with(file, ".") })
-  |> list.fold(Ok(filenames), fn(filenames, file_or_dir_path) {
-    use filenames <- result.try(filenames)
-    let full_file_path = path <> "/" <> file_or_dir_path
-    case simplifile.is_directory(full_file_path) {
-      True -> load_file_names(full_file_path, filenames)
-      False -> {
-        let slug =
-          full_file_path
-          |> string.replace(pages_path <> "/", "")
-          |> string.split("/")
-          |> list.reverse
-          |> list.drop(1)
-          |> list.reverse
-          |> string.join("/")
-          |> fn(s) { path_home <> s }
-
-        let name =
-          slug
-          |> string.replace("/", " ")
-          |> string.replace("-", " ")
-          |> string.capitalise
-          |> string_coalesce(home_title)
-
-        let file = FileNames(path: full_file_path, name: name, slug: slug)
-        Ok([file, ..filenames])
-      }
-    }
-  })
-}
-
-fn string_coalesce(coalesce value: String, with replacement: String) -> String {
-  case value {
-    "" -> replacement
-    _ -> value
-  }
-}
-
 type Page {
-  Page(filenames: FileNames, content: String)
+  Page(filenames: FileNames, content: Html)
 }
 
-fn read_pages(filenames: List(FileNames)) -> snag.Result(List(Page)) {
-  filenames
-  |> list.fold(Ok([]), fn(pages, filename) {
-    use pages <- result.try(pages)
-    use content <- result.try(read_file(filename.path))
-    let page = Page(filenames: filename, content: content)
-    Ok([page, ..pages])
-  })
-}
-
-fn read_file(path: String) -> snag.Result(String) {
-  simplifile.read(path)
-  |> file_error("Failed to read file " <> path)
+fn get_pages() -> snag.Result(List(Page)) {
+  Ok([
+    Page(FileNames(path: path_home, name: home_title, slug: "/"), home_page()),
+  ])
 }
 
 fn ensure_directory(path: String) -> snag.Result(Nil) {
@@ -189,7 +118,6 @@ fn make_stdlib_available() -> snag.Result(Nil) {
   let modules =
     files
     |> list.filter(fn(file) { string.ends_with(file, ".gleam") })
-    |> list.filter(fn(file) { !list.contains(skipped_stdlib_modules, file) })
     |> list.map(string.replace(_, ".gleam", ""))
 
   use _ <- result.try(
@@ -345,7 +273,7 @@ const css_defaults_page = [css_fonts, css_theme, css__gleam_common, css_layout]
 
 // Page stylesheet paths
 
-/// Common stylesheet for all tour pages
+/// Common stylesheet for all playground pages
 const css_root = "/css/root.css"
 
 // Path to the css speciic to to lesson & main pages
@@ -388,7 +316,7 @@ pub fn theme_picker_script() -> Html {
 
 fn render_page_object(page: Page) -> String {
   render_page(PageConfig(
-    path: page.filenames.path,
+    path: page.filenames.slug,
     title: page.filenames.name,
     stylesheets: list.flatten([
       css_defaults_page,
@@ -396,9 +324,7 @@ fn render_page_object(page: Page) -> String {
       [css_root, css_playground_page],
     ]),
     static_content: [render_navbar()],
-    content: [
-      htmb.dangerous_unescaped_fragment(string_builder.from_string(page.content)),
-    ],
+    content: [page.content],
     scripts: ScriptConfig(
       body: [
         theme_picker_script(),
@@ -416,18 +342,10 @@ fn render_page_object(page: Page) -> String {
 
 fn write_pages(pages: List(Page)) -> snag.Result(Nil) {
   list.try_each(pages, fn(page) {
-    let dir = filepath.join(public, slugify_path(page.filenames.slug))
+    let dir = filepath.join(public, page.filenames.slug)
     use _ <- result.try(ensure_directory(dir))
     let path = filepath.join(dir, "index.html")
     let html = render_page_object(page)
     write_text(path, html)
   })
-}
-
-/// Renders a Lesson's page
-/// Complete with title, lesson, editor and output
-/// Transform a path into a slug
-fn slugify_path(path: String) -> String {
-  string.replace(path, "/", "-")
-  |> string.drop_left(up_to: 1)
 }
