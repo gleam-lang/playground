@@ -199,7 +199,7 @@ const shareButton = document.querySelector("#share-button");
 function share() {
   const code = editor.getCode();
   const compressed = makeV1Hash(code);
-  const url = `${window.location.origin}${window.location.pathname}?title=${titleInput.value}#${compressed}`;
+  const url = `${window.location.origin}${window.location.pathname}?title=${encodeURIComponent(titleInput.value)}#${compressed}`;
   navigator.clipboard.writeText(url);
   shareButton.textContent = "Copied!";
   setTimeout(() => {
