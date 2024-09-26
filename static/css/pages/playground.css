@@ -1,4 +1,4 @@
-.output>*,
+.output > *,
 #editor .codeflask__flatten {
   padding: var(--gap);
 }
@@ -24,32 +24,6 @@
   min-height: fit-content;
 }
 
-#playground-header {
-  display: flex;
-  justify-content: space-between;
-  gap: var(--gap);
-  align-items: center;
-  padding: var(--gap);
-  border-bottom: 1px solid var(--color-divider);
-}
-
-#title-input {
-  font-size: 1.5rem;
-  font-weight: bold;
-  border: none;
-  border-bottom: 1px solid transparent;
-  background: none;
-  color: var(--color-text);
-  width: 100%;
-}
-
-#title-input:focus,
-#title-input:active,
-#title-input:hover {
-  outline: none;
-  border-bottom: 1px solid var(--color-divider);
-}
-
 #tabs {
   display: flex;
   gap: var(--gap);
@@ -70,7 +44,7 @@
   border-bottom: 2px solid var(--color-accent-muted);
 }
 
-.tab>p {
+.tab > p {
   margin: 0;
 }
 
@@ -97,35 +71,39 @@
   overflow: auto;
 }
 
-.output>* {
+.output > * {
   margin: 0;
   white-space: pre-wrap;
 }
 
-.output>pre {
+.output > pre {
   background: none !important;
 }
 
-#output-container:has(#output-radio:checked)>#output {
+#output-container:has(#output-radio:checked) > #output {
   display: block;
 }
 
-#output-container:has(#compiled-javascript-radio:checked)>#compiled-javascript {
+#output-container:has(#compiled-javascript-radio:checked)
+  > #compiled-javascript {
   display: block;
 }
 
-#output-container:has(#compiled-erlang-radio:checked)>#compiled-erlang {
+#output-container:has(#compiled-erlang-radio:checked) > #compiled-erlang {
   display: block;
 }
 
 #share-button {
-  padding: var(--gap);
+  padding: var(--gap-half) var(--gap);
   border: none;
-  color: var(--color-text-muted);
-  background-color: var(--color-background-dim);
+  color: var(--color-text);
+  background-color: var(--color-background);
   border-radius: 0.5rem;
   font-family: var(--font-family-normal);
   cursor: pointer;
+  align-self: center;
+  margin-left: auto;
+  margin-right: var(--gap);
 }
 
 /* Larger than mobile */
