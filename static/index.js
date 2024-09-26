@@ -70,7 +70,7 @@ function highlightOutput(target, childClassName) {
   console.warn = () => { };
   target.querySelectorAll(`.${childClassName}`).forEach((element) => {
     hljs.highlightElement(element);
-  })
+  });
   console.warn = warn;
 }
 
@@ -139,9 +139,6 @@ worker.onmessage = (event) => {
 
 editor.onUpdate(debounce((code) => sendToWorker(code), 200));
 
-// Title and hash
-const titleInput = document.querySelector("#title-input");
-
 /**
  * Hashed object format:
  * {
@@ -150,10 +147,12 @@ const titleInput = document.querySelector("#title-input");
  * }
  */
 function makeV1Hash(code) {
-  return lz.compressToBase64(JSON.stringify({
-    version: 1,
-    content: code,
-  }));
+  return lz.compressToBase64(
+    JSON.stringify({
+      version: 1,
+      content: code,
+    }),
+  );
 }
 
 function parseV1Hash(obj) {
@@ -177,14 +176,8 @@ function parseHash(hash) {
     case 1:
       return parseV1Hash(obj);
   }
-  return null
+  return null;
 }
-
-
-// Get the title from the query string if it exists,
-// otherwise use the title input value (so we can set the default in the HTML)
-titleInput.value = new URLSearchParams(window.location.search).get("title") || titleInput.value;
-document.title = `${titleInput.value} - The Gleam Playground`;
 
 if (window.location.hash) {
   const hash = window.location.hash.slice(1);
@@ -199,11 +192,12 @@ const shareButton = document.querySelector("#share-button");
 function share() {
   const code = editor.getCode();
   const compressed = makeV1Hash(code);
-  const url = `${window.location.origin}${window.location.pathname}?title=${encodeURIComponent(titleInput.value)}#${compressed}`;
+  const url = `${window.location.origin}${window.location.pathname}#${compressed}`;
   navigator.clipboard.writeText(url);
-  shareButton.textContent = "Copied!";
+  const before = shareButton.textContent;
+  shareButton.textContent = "Link copied!";
   setTimeout(() => {
-    shareButton.textContent = "Share";
+    shareButton.textContent = before;
   }, 1000);
 }
 shareButton.addEventListener("click", share);

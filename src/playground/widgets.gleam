@@ -1,4 +1,3 @@
-import gleam/list
 import htmb.{type Html, h, text}
 
 pub fn icon_moon() -> Html {
@@ -185,11 +184,7 @@ pub fn text_link(
 }
 
 /// Renders the playground's navbar as html
-pub fn navbar(titled title: String, links links: List(Link)) -> Html {
-  let links = list.map(links, fn(l) { text_link(l, []) })
-
-  let nav_right_items = list.flatten([links, [theme_picker()]])
-
+pub fn navbar() -> Html {
   h("nav", [#("class", "navbar")], [
     anchor("/", [#("class", "logo")], [
       h(
@@ -200,8 +195,44 @@ pub fn navbar(titled title: String, links links: List(Link)) -> Html {
         ],
         [],
       ),
-      text(title),
+      text("Gleam Playground"),
     ]),
-    h("div", [#("class", "nav-right")], nav_right_items),
+    h("div", [#("class", "nav-right")], [
+      anchor("https://gleam.run", [#("class", "link")], [text("gleam.run")]),
+      theme_picker(),
+    ]),
   ])
+}
+
+/// Renders a tab for the output display
+pub fn output_tab(
+  label: String,
+  id: String,
+  value: String,
+  checked: Bool,
+) -> Html {
+  let checked = case checked {
+    True -> "true"
+    False -> "false"
+  }
+  h("label", [#("class", "tab")], [
+    h("p", [], [text(label)]),
+    h(
+      "input",
+      [
+        #("type", "radio"),
+        #("id", id),
+        #("name", "output-display"),
+        #("value", value),
+        #("hidden", "true"),
+        #("checked", checked),
+      ],
+      [],
+    ),
+  ])
+}
+
+/// Renders a container for containing some output
+pub fn output_container(id: String, class: String) -> Html {
+  h("aside", [#("id", id), #("class", class)], [])
 }

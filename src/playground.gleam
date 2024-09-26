@@ -6,13 +6,24 @@ import gleam/string
 import gleam/string_builder
 import htmb.{type Html, h}
 import playground/html.{
-  PageConfig, ScriptConfig, ScriptOptions, html_dangerous_inline_script,
-  html_script, render_page,
+  ScriptOptions, html_dangerous_inline_script, html_link, html_meta,
+  html_meta_prop, html_script, html_stylesheet, html_title,
 }
-import playground/pages.{home_page}
-import playground/widgets.{Link}
+import playground/widgets.{output_container, output_tab}
 import simplifile
 import snag
+
+// Meta bits
+
+const meta_title = "The Gleam Playground"
+
+const meta_description = "A playground for the Gleam programming language. Write, run, and share Gleam code in your browser."
+
+const meta_image = "https://gleam.run/images/og-image.png"
+
+const meta_url = "https://play.gleam.run"
+
+// Paths
 
 const static = "static"
 
@@ -30,8 +41,6 @@ const stdlib_external = "build/packages/gleam_stdlib/src"
 
 const compiler_wasm = "./wasm-compiler"
 
-const home_title = "Gleam Playground"
-
 const hello_joe = "import gleam/io
 
 pub fn main() {
@@ -41,16 +50,22 @@ pub fn main() {
 
 // page paths
 
-const path_home = "/"
-
 pub fn main() {
   let result = {
     use _ <- result.try(reset_output())
     use _ <- result.try(make_prelude_available())
     use _ <- result.try(make_stdlib_available())
     use _ <- result.try(copy_wasm_compiler())
-    use pages <- result.try(get_pages())
-    use _ <- result.try(write_pages(pages))
+
+    let page_html =
+      home_page()
+      |> htmb.render_page("html")
+      |> string_builder.to_string
+
+    use _ <- result.try(ensure_directory(public))
+    let path = filepath.join(public, "index.html")
+
+    use _ <- result.try(write_text(path, page_html))
 
     Ok(Nil)
   }
@@ -65,20 +80,6 @@ pub fn main() {
   }
 }
 
-type FileNames {
-  FileNames(path: String, name: String, slug: String)
-}
-
-type Page {
-  Page(filenames: FileNames, content: Html)
-}
-
-fn get_pages() -> snag.Result(List(Page)) {
-  Ok([
-    Page(FileNames(path: path_home, name: home_title, slug: "/"), home_page()),
-  ])
-}
-
 fn ensure_directory(path: String) -> snag.Result(Nil) {
   simplifile.create_directory_all(path)
   |> file_error("Failed to create directory " <> path)
@@ -90,10 +91,11 @@ fn write_text(path: String, text: String) -> snag.Result(Nil) {
 }
 
 fn copy_wasm_compiler() -> snag.Result(Nil) {
-  use <- require(
-    simplifile.is_directory(compiler_wasm),
-    "compiler-wasm must have been compiled",
+  use compiler_wasm_exists <- result.try(
+    simplifile.is_directory(compiler_wasm)
+    |> file_error("Failed to check compiler-wasm directory"),
   )
+  use <- require(compiler_wasm_exists, "compiler-wasm must have been compiled")
 
   simplifile.copy_directory(compiler_wasm, public <> "/compiler")
   |> file_error("Failed to copy compiler-wasm")
@@ -154,8 +156,12 @@ fn copy_stdlib_externals() -> snag.Result(Nil) {
 }
 
 fn copy_compiled_stdlib(modules: List(String)) -> snag.Result(Nil) {
+  use stdlib_dir_exists <- result.try(
+    simplifile.is_directory(stdlib_compiled)
+    |> file_error("Failed to check stdlib directory"),
+  )
   use <- require(
-    simplifile.is_directory(stdlib_compiled),
+    stdlib_dir_exists,
     "Project must have been compiled for JavaScript",
   )
 
@@ -290,15 +296,6 @@ const css_scheme_atom_one = "/css/code/color-schemes/atom-one.css"
 /// To be used alonside defaults_page
 const css_defaults_code = [css_syntax_highlight, css_scheme_atom_one]
 
-// Common page HTML elements renders
-
-/// Renders the navbar with common links
-fn render_navbar() -> Html {
-  widgets.navbar(titled: "Gleam Playground", links: [
-    Link(label: "gleam.run", to: "http://gleam.run"),
-  ])
-}
-
 /// Renders the script that that contains the code
 /// needed for the light/dark theme picker to work
 pub fn theme_picker_script() -> Html {
@@ -311,38 +308,94 @@ pub fn theme_picker_script() -> Html {
 
 // Page Renders
 
-fn render_page_object(page: Page) -> String {
-  render_page(PageConfig(
-    path: page.filenames.slug,
-    title: page.filenames.name,
-    stylesheets: list.flatten([
-      css_defaults_page,
-      css_defaults_code,
-      [css_root, css_playground_page],
+fn home_page() -> Html {
+  let head_content = [
+    // Meta property tags
+    html_meta_prop("og:type", "website"),
+    html_meta_prop("og:title", meta_title),
+    html_meta_prop("og:description", meta_description),
+    html_meta_prop("og:url", meta_url),
+    html_meta_prop("og:image", meta_image),
+    html_meta_prop("twitter:card", "summary_large_image"),
+    html_meta_prop("twitter:url", meta_url),
+    html_meta_prop("twitter:title", meta_title),
+    html_meta_prop("twitter:description", meta_description),
+    html_meta_prop("twitter:image", meta_image),
+    // Page meta
+    html_meta([#("charset", "utf-8")]),
+    html_meta([
+      #("name", "viewport"),
+      #("content", "width=device-width, initial-scale=1"),
     ]),
-    static_content: [render_navbar()],
-    content: [page.content],
-    scripts: ScriptConfig(
-      body: [
-        theme_picker_script(),
-        h("script", [#("type", "gleam"), #("id", "code")], [
-          htmb.dangerous_unescaped_fragment(string_builder.from_string(
-            hello_joe,
-          )),
-        ]),
-        html_script("/index.js", ScriptOptions(module: True, defer: False), []),
-      ],
-      head: [],
+    html_title(meta_title),
+    html_meta([#("name", "description"), #("content", meta_description)]),
+    // Links
+    html_link("shortcut icon", "https://gleam.run/images/lucy/lucy.svg"),
+    // Scripts
+    html_script(
+      "https://plausible.io/js/script.js",
+      ScriptOptions(defer: True, module: False),
+      [#("data-domain", "play.gleam.run")],
     ),
-  ))
-}
+    // Stylesheets
+    ..{
+      list.flatten([
+        css_defaults_page,
+        css_defaults_code,
+        [css_root, css_playground_page],
+      ])
+      |> list.map(html_stylesheet)
+    }
+  ]
 
-fn write_pages(pages: List(Page)) -> snag.Result(Nil) {
-  list.try_each(pages, fn(page) {
-    let dir = filepath.join(public, page.filenames.slug)
-    use _ <- result.try(ensure_directory(dir))
-    let path = filepath.join(dir, "index.html")
-    let html = render_page_object(page)
-    write_text(path, html)
-  })
+  let body_scripts = [
+    theme_picker_script(),
+    h("script", [#("type", "gleam"), #("id", "code")], [
+      htmb.dangerous_unescaped_fragment(string_builder.from_string(hello_joe)),
+    ]),
+    html_script("/index.js", ScriptOptions(module: True, defer: False), []),
+  ]
+
+  let body_content = [
+    widgets.navbar(),
+    h("article", [#("id", "playground-container")], [
+      h("section", [#("id", "playground")], [
+        h("div", [#("id", "playground-content")], [
+          h("section", [#("id", "editor")], [
+            h("div", [#("id", "editor-target")], []),
+          ]),
+          h("div", [#("id", "output-container")], [
+            h("div", [#("id", "tabs")], [
+              output_tab("Output", "output-radio", "output", True),
+              output_tab(
+                "Compiled Erlang",
+                "compiled-erlang-radio",
+                "erlang",
+                False,
+              ),
+              output_tab(
+                "Compiled JavaScript",
+                "compiled-javascript-radio",
+                "javascript",
+                False,
+              ),
+              h("button", [#("id", "share-button")], [htmb.text("Share code")]),
+            ]),
+            output_container("output", "output"),
+            output_container("compiled-erlang", "output language-erlang"),
+            output_container(
+              "compiled-javascript",
+              "output language-javascript",
+            ),
+          ]),
+        ]),
+      ]),
+    ]),
+    ..body_scripts
+  ]
+
+  h("html", [#("class", "theme-light"), #("lang", "en-GB")], [
+    h("head", [], head_content),
+    h("body", [], body_content),
+  ])
 }
