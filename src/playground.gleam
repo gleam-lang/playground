@@ -335,7 +335,7 @@ fn home_page() -> Html {
     html_script(
       "https://plausible.io/js/script.js",
       ScriptOptions(defer: True, module: False),
-      [#("data-domain", "play.gleam.run")],
+      [#("data-domain", "playground.gleam.run")],
     ),
     // Stylesheets
     ..{
