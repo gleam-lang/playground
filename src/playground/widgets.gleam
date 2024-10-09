@@ -211,24 +211,20 @@ pub fn output_tab(
   value: String,
   checked: Bool,
 ) -> Html {
-  let checked = case checked {
-    True -> "true"
-    False -> "false"
+  let attrs = [
+    #("type", "radio"),
+    #("id", id),
+    #("name", "output-display"),
+    #("value", value),
+    #("hidden", "true"),
+  ]
+  let attrs = case checked {
+    True -> [#("checked", ""), ..attrs]
+    False -> attrs
   }
   h("label", [#("class", "tab")], [
     h("p", [], [text(label)]),
-    h(
-      "input",
-      [
-        #("type", "radio"),
-        #("id", id),
-        #("name", "output-display"),
-        #("value", value),
-        #("hidden", "true"),
-        #("checked", checked),
-      ],
-      [],
-    ),
+    h("input", attrs, []),
   ])
 }
 
