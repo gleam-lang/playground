@@ -1,4 +1,5 @@
 import filepath
+import gleam/erlang/os
 import gleam/io
 import gleam/list
 import gleam/result
@@ -309,6 +310,8 @@ pub fn theme_picker_script() -> Html {
 // Page Renders
 
 fn home_page() -> Html {
+  let gleam_version = os.get_env("GLEAM_VERSION") |> result.unwrap("")
+
   let head_content = [
     // Meta property tags
     html_meta_prop("og:type", "website"),
@@ -357,7 +360,7 @@ fn home_page() -> Html {
   ]
 
   let body_content = [
-    widgets.navbar(),
+    widgets.navbar(gleam_version),
     h("article", [#("id", "playground-container")], [
       h("section", [#("id", "playground")], [
         h("div", [#("id", "playground-content")], [
