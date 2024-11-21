@@ -196,6 +196,7 @@ pub fn navbar() -> Html {
         [],
       ),
       text("Gleam Playground"),
+      h("p", [#("class", "version-number")], [text("v1.6.1")]),
     ]),
     h("div", [#("class", "nav-right")], [
       anchor("https://gleam.run", [#("class", "link")], [text("gleam.run")]),

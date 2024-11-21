@@ -76,6 +76,13 @@ a {
   margin-right: 0.5em;
 }
 
+.navbar .version-number {
+  padding-left: 8px;
+  padding-top: 3px;
+  font-size: var(--font-size-extra-small);
+  opacity: 0.8;
+}
+
 .navbar a:visited,
 .navbar a {
   text-decoration: none;
