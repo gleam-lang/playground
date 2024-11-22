@@ -2,11 +2,12 @@
 
 set -eu
 
+version=`cat ./GLEAM_VERSION`
+
 # Ensure you update the CI Gleam version to match this
-VERSION=$GLEAM_VERSION
 
 rm -fr wasm-compiler
 mkdir wasm-compiler
 cd wasm-compiler
-curl -L "https://github.com/gleam-lang/gleam/releases/download/$VERSION/gleam-$VERSION-browser.tar.gz" | tar xz
+curl -L "https://github.com/gleam-lang/gleam/releases/download/$version/gleam-$version-browser.tar.gz" | tar xz
 cd ..
