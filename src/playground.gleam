@@ -1,5 +1,4 @@
 import filepath
-import gleam/erlang/os
 import gleam/io
 import gleam/list
 import gleam/result
@@ -41,6 +40,8 @@ const stdlib_sources = "build/packages/gleam_stdlib/src/gleam"
 const stdlib_external = "build/packages/gleam_stdlib/src"
 
 const compiler_wasm = "./wasm-compiler"
+
+const gleam_version = "GLEAM_VERSION"
 
 const hello_joe = "import gleam/io
 
@@ -96,7 +97,17 @@ fn copy_wasm_compiler() -> snag.Result(Nil) {
     simplifile.is_directory(compiler_wasm)
     |> file_error("Failed to check compiler-wasm directory"),
   )
-  use <- require(compiler_wasm_exists, "compiler-wasm must have been compiled")
+  use <- require(compiler_wasm_exists, "compiler-wasm folder must exist")
+
+  use compiler_was_downloaded <- result.try(
+    simplifile.get_files(compiler_wasm)
+    |> file_error("Failed to check compiler-wasm directory for files"),
+  )
+
+  use <- require(
+    list.length(compiler_was_downloaded) > 0,
+    "compiler-wasm must have been compiled",
+  )
 
   simplifile.copy_directory(compiler_wasm, public <> "/compiler")
   |> file_error("Failed to copy compiler-wasm")
@@ -310,7 +321,12 @@ pub fn theme_picker_script() -> Html {
 // Page Renders
 
 fn home_page() -> Html {
-  let gleam_version = os.get_env("GLEAM_VERSION") |> result.unwrap("")
+  let gleam_version =
+    gleam_version
+    |> simplifile.read()
+    |> result.lazy_unwrap(fn() {
+      panic as "Could not read gleam version from file"
+    })
 
   let head_content = [
     // Meta property tags
