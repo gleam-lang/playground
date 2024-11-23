@@ -3,6 +3,10 @@
 An interactive playground for the Gleam language.
 
 ```sh
+# Set the gleam version in the GLEAM_VERSION file
+#./GLEAM_VERSION
+v1.6.1
+
 # Download a wasm version of the Gleam compiler
 ./bin/download-compiler
 

@@ -41,6 +41,8 @@ const stdlib_external = "build/packages/gleam_stdlib/src"
 
 const compiler_wasm = "./wasm-compiler"
 
+const gleam_version = "GLEAM_VERSION"
+
 const hello_joe = "import gleam/io
 
 pub fn main() {
@@ -56,9 +58,10 @@ pub fn main() {
     use _ <- result.try(make_prelude_available())
     use _ <- result.try(make_stdlib_available())
     use _ <- result.try(copy_wasm_compiler())
+    use version <- result.try(read_gleam_version())
 
     let page_html =
-      home_page()
+      home_page(version)
       |> htmb.render_page("html")
       |> string_builder.to_string
 
@@ -95,7 +98,17 @@ fn copy_wasm_compiler() -> snag.Result(Nil) {
     simplifile.is_directory(compiler_wasm)
     |> file_error("Failed to check compiler-wasm directory"),
   )
-  use <- require(compiler_wasm_exists, "compiler-wasm must have been compiled")
+  use <- require(compiler_wasm_exists, "compiler-wasm folder must exist")
+
+  use compiler_was_downloaded <- result.try(
+    simplifile.get_files(compiler_wasm)
+    |> file_error("Failed to check compiler-wasm directory for files"),
+  )
+
+  use <- require(
+    list.length(compiler_was_downloaded) > 0,
+    "compiler-wasm must have been compiled",
+  )
 
   simplifile.copy_directory(compiler_wasm, public <> "/compiler")
   |> file_error("Failed to copy compiler-wasm")
@@ -246,6 +259,12 @@ fn require(
   }
 }
 
+fn read_gleam_version() -> snag.Result(String) {
+  gleam_version
+  |> simplifile.read()
+  |> file_error("Failed to read glema version at path " <> gleam_version)
+}
+
 fn file_error(
   result: Result(t, simplifile.FileError),
   context: String,
@@ -308,7 +327,7 @@ pub fn theme_picker_script() -> Html {
 
 // Page Renders
 
-fn home_page() -> Html {
+fn home_page(gleam_version: String) -> Html {
   let head_content = [
     // Meta property tags
     html_meta_prop("og:type", "website"),
@@ -357,7 +376,7 @@ fn home_page() -> Html {
   ]
 
   let body_content = [
-    widgets.navbar(),
+    widgets.navbar(gleam_version),
     h("article", [#("id", "playground-container")], [
       h("section", [#("id", "playground")], [
         h("div", [#("id", "playground-content")], [
