@@ -58,9 +58,10 @@ pub fn main() {
     use _ <- result.try(make_prelude_available())
     use _ <- result.try(make_stdlib_available())
     use _ <- result.try(copy_wasm_compiler())
+    use version <- result.try(read_gleam_version())
 
     let page_html =
-      home_page()
+      home_page(version)
       |> htmb.render_page("html")
       |> string_builder.to_string
 
@@ -258,6 +259,12 @@ fn require(
   }
 }
 
+fn read_gleam_version() -> snag.Result(String) {
+  gleam_version
+  |> simplifile.read()
+  |> file_error("Failed to read glema version at path " <> gleam_version)
+}
+
 fn file_error(
   result: Result(t, simplifile.FileError),
   context: String,
@@ -320,14 +327,7 @@ pub fn theme_picker_script() -> Html {
 
 // Page Renders
 
-fn home_page() -> Html {
-  let gleam_version =
-    gleam_version
-    |> simplifile.read()
-    |> result.lazy_unwrap(fn() {
-      panic as "Could not read gleam version from file"
-    })
-
+fn home_page(gleam_version: String) -> Html {
   let head_content = [
     // Meta property tags
     html_meta_prop("og:type", "website"),
