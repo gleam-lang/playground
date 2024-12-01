@@ -25,7 +25,7 @@ const meta_image = "https://gleam.run/images/og-image.png"
 
 const meta_url = "https://play.gleam.run"
 
-const available_packages = ["gleam_stdlib", "globlin", "filepath"]
+const available_packages = ["filepath", "gleam_stdlib", "globlin"]
 
 // Paths
 
@@ -105,7 +105,7 @@ pub fn make_packages_available(packages: List(String)) -> snag.Result(Nil) {
   )
 
   // Walk the lib directory to enumerate them in a manifest.
-  generate_lib_manifest()
+  generate_lib_manifest(packages)
 }
 
 fn copy_lib_files(files: List(String)) -> snag.Result(Nil) {
@@ -128,7 +128,7 @@ fn copy_lib_dirs(packages: List(String)) -> snag.Result(Nil) {
   })
 }
 
-fn generate_lib_manifest() -> snag.Result(Nil) {
+fn generate_lib_manifest(packages: List(String)) -> snag.Result(Nil) {
   let assert Ok(pattern) = globlin.new_pattern("**/*")
 
   use cwd <- result.try(
@@ -146,15 +146,25 @@ fn generate_lib_manifest() -> snag.Result(Nil) {
     |> file_error("Walking lib files"),
   )
 
-  files
-  // Make sure we turn the matched absolute paths back to relative ones.
-  |> list.map(string.drop_left(_, string.length(abs_dir) + 1))
-  |> list.sort(string.compare)
-  // Export them as a const JS array literal.
-  |> string.join("',\n  '")
-  |> string.append("export const files = [\n  '", _)
-  |> string.append("'\n]\n")
-  |> simplifile.write(public_precompiled <> ".js", _)
+  let files =
+    files
+    // Make sure we turn the matched absolute paths back to relative ones.
+    |> list.map(string.drop_left(_, string.length(abs_dir) + 1))
+    |> list.sort(string.compare)
+    // Export them as a const JS array literal.
+    |> string.join("',\n  '")
+    |> string.append("export const files = [\n  '", _)
+    |> string.append("'\n];\n")
+
+  let packages =
+    packages
+    |> list.sort(string.compare)
+    // Export them as a const JS array literal.
+    |> string.join("', '")
+    |> string.append("export const packages = ['", _)
+    |> string.append("'];\n")
+
+  simplifile.write(public_precompiled <> ".js", string.append(packages, files))
   |> file_error("Failed to write lib manifest")
 }
 

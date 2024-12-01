@@ -1,5 +1,8 @@
 import initGleamCompiler from "./compiler.js";
-import { files as libFiles } from "./precompiled.js";
+import {
+  files as libFiles,
+  packages as availablePackages,
+} from "./precompiled.js";
 
 const compiler = await initGleamCompiler();
 const project = compiler.newProject();
@@ -20,6 +23,24 @@ for (const file of libFiles) {
   const bytes = await res.bytes();
   project.writeFileBytes(`/lib/${file}`, bytes);
 }
+
+// Ensures precompiled libraries are direct dependencies.
+// The compiler will warn about transitive dependencies, but not check the version requirements.
+function configWithDependencies(deps) {
+  const conf = `
+    name = "library"
+    version = "1.0.0"
+    [dependencies]
+    ${deps.map((dep) => `${dep} = "0.0.0"`).join("\n")}
+  `;
+  return new TextEncoder().encode(conf);
+}
+
+// TODO: packages could be filtered to restore transitive dependency warnings.
+project.writeFileBytes(
+  "/gleam.toml",
+  configWithDependencies(availablePackages)
+);
 
 // Monkey patch console.log to keep a copy of the output
 let logged = "";
