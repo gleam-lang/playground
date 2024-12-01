@@ -53,6 +53,10 @@ pub fn main() {
     use _ <- result.try(reset_output())
     use _ <- result.try(ensure_directory(public_precompiled))
     use _ <- result.try(make_packages_available(available_packages))
+    use _ <- result.try(
+      simplifile.copy_directory(static, public)
+      |> file_error("Failed to copy static directory"),
+    )
     use _ <- result.try(copy_wasm_compiler())
 
     let page_html =
@@ -176,15 +180,10 @@ fn reset_output() -> snag.Result(Nil) {
     |> file_error("Failed to read public directory"),
   )
 
-  use _ <- result.try(
-    files
-    |> list.map(string.append(public <> "/", _))
-    |> simplifile.delete_all
-    |> file_error("Failed to delete public directory"),
-  )
-
-  simplifile.copy_directory(static, public)
-  |> file_error("Failed to copy static directory")
+  files
+  |> list.map(string.append(public <> "/", _))
+  |> simplifile.delete_all
+  |> file_error("Failed to delete public directory")
 }
 
 fn require(
