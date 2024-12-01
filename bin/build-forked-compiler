@@ -1,0 +1,13 @@
+#!/bin/sh
+
+set -eu
+
+readonly repo_root=$(dirname $(dirname $(realpath $0)))
+
+# You must have cloned the `gleam-lang/gleam` git repository for this command.
+# This gives you a choice of compilers without having to go into git submodules.
+GLEAM_DIR=${GLEAM_DIR:?"Please clone gleam-lang/gleam and set the GLEAM_DIR env to the repository root"}
+
+rm -fr "${repo_root}/wasm-compiler"
+mkdir "${repo_root}/wasm-compiler"
+wasm-pack build --release --target web --out-dir "${repo_root}/wasm-compiler" "${GLEAM_DIR}/compiler-wasm"
