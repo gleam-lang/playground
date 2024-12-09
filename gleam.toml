@@ -1,5 +1,6 @@
 name = "playground"
 version = "1.0.0"
+target = "javascript"
 licences = ["Apache-2.0"]
 
 # Fill out these fields if you intend to generate HTML documentation or publish
