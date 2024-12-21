@@ -17,8 +17,10 @@ console.log = (...args) => {
 };
 
 async function loadProgram(js) {
+  // URL to worker.js ('base/worker.js')
   const url = new URL(import.meta.url);
-  url.pathname = "";
+  // Remove 'worker.js', keep just 'base/'
+  url.pathname = url.pathname.substring(0, url.pathname.lastIndexOf("/") + 1);
   url.hash = "";
   url.search = "";
   const href = url.toString();
