@@ -1,12 +1,46 @@
 import initGleamCompiler from "./compiler.js";
-import stdlib from "./stdlib.js";
+import {
+  files as libFiles,
+  packages as availablePackages,
+} from "./precompiled.js";
 
 const compiler = await initGleamCompiler();
 const project = compiler.newProject();
 
-for (const [name, code] of Object.entries(stdlib)) {
-  project.writeModule(name, code);
+function libUrl(file) {
+  const url = new URL(import.meta.url);
+  url.pathname = file ? `precompiled/${file}` : "precompiled";
+  url.hash = "";
+  url.search = "";
+  return url.toString();
 }
+
+// Write all files from /lib ahead of time.
+// Use binary because we also need capnp cache files here.
+for (const file of libFiles) {
+  const url = libUrl(file);
+  const res = await fetch(url);
+  const bytes = await res.bytes();
+  project.writeFileBytes(`/lib/${file}`, bytes);
+}
+
+// Ensures precompiled libraries are direct dependencies.
+// The compiler will warn about transitive dependencies, but not check the version requirements.
+function configWithDependencies(deps) {
+  const conf = `
+    name = "library"
+    version = "1.0.0"
+    [dependencies]
+    ${deps.map((dep) => `${dep} = "0.0.0"`).join("\n")}
+  `;
+  return new TextEncoder().encode(conf);
+}
+
+// TODO: packages could be filtered to restore transitive dependency warnings.
+project.writeFileBytes(
+  "/gleam.toml",
+  configWithDependencies(availablePackages)
+);
 
 // Monkey patch console.log to keep a copy of the output
 let logged = "";
@@ -17,15 +51,12 @@ console.log = (...args) => {
 };
 
 async function loadProgram(js) {
-  const url = new URL(import.meta.url);
-  url.pathname = "";
-  url.hash = "";
-  url.search = "";
-  const href = url.toString();
-  const js1 = js.replaceAll(
-    /from\s+"\.\/(.+)"/g,
-    `from "${href}precompiled/$1"`,
-  );
+  const href = libUrl();
+  const js1 = js
+    // Importing a dependency uses `../{packageName}/{module}.mjs`
+    .replaceAll(/from\s+"\.\.\/(.+)"/g, `from "${href}/$1"`)
+    // The root package depending on prelude `./gleam.mjs`.
+    .replaceAll(/from\s+"\.\/gleam\.mjs\"/g, `from "${href}/prelude.mjs"`);
   const js2 = btoa(unescape(encodeURIComponent(js1)));
   const module = await import("data:text/javascript;base64," + js2);
   return module.main;

@@ -53,6 +53,10 @@ class Project {
     return this.#id;
   }
 
+  writeFileBytes(fileName, content) {
+    compiler.wasm.write_file_bytes(this.#id, fileName, content);
+  }
+
   writeModule(moduleName, code) {
     compiler.wasm.write_module(this.#id, moduleName, code);
   }

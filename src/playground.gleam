@@ -4,6 +4,8 @@ import gleam/list
 import gleam/result
 import gleam/string
 import gleam/string_builder
+import globlin
+import globlin_fs
 import htmb.{type Html, h}
 import playground/html.{
   ScriptOptions, html_dangerous_inline_script, html_link, html_meta,
@@ -23,6 +25,8 @@ const meta_image = "https://gleam.run/images/og-image.png"
 
 const meta_url = "https://play.gleam.run"
 
+const available_packages = ["filepath", "gleam_stdlib", "globlin"]
+
 // Paths
 
 const static = "static"
@@ -31,13 +35,7 @@ const public = "public"
 
 const public_precompiled = "public/precompiled"
 
-const prelude = "build/dev/javascript/prelude.mjs"
-
-const stdlib_compiled = "build/dev/javascript/gleam_stdlib/gleam"
-
-const stdlib_sources = "build/packages/gleam_stdlib/src/gleam"
-
-const stdlib_external = "build/packages/gleam_stdlib/src"
+const compiled_lib = "build/dev/javascript"
 
 const compiler_wasm = "./wasm-compiler"
 
@@ -55,8 +53,12 @@ pub fn main() {
 pub fn main() {
   let result = {
     use _ <- result.try(reset_output())
-    use _ <- result.try(make_prelude_available())
-    use _ <- result.try(make_stdlib_available())
+    use _ <- result.try(ensure_directory(public_precompiled))
+    use _ <- result.try(make_packages_available(available_packages))
+    use _ <- result.try(
+      simplifile.copy_directory(static, public)
+      |> file_error("Failed to copy static directory"),
+    )
     use _ <- result.try(copy_wasm_compiler())
     use version <- result.try(read_gleam_version())
 
@@ -65,7 +67,6 @@ pub fn main() {
       |> htmb.render_page("html")
       |> string_builder.to_string
 
-    use _ <- result.try(ensure_directory(public))
     let path = filepath.join(public, "index.html")
 
     use _ <- result.try(write_text(path, page_html))
@@ -93,6 +94,83 @@ fn write_text(path: String, text: String) -> snag.Result(Nil) {
   |> file_error("Failed to write " <> path)
 }
 
+pub fn make_packages_available(packages: List(String)) -> snag.Result(Nil) {
+  // Set up prelude
+  use _ <- result.try(
+    copy_lib_files(["prelude.mjs", "gleam_version"])
+    |> snag.context("Failed to copy lib prelude"),
+  )
+
+  // Recursive directory copies for packages
+  use _ <- result.try(
+    copy_lib_dirs(packages)
+    |> snag.context("Failed to copy lib packages"),
+  )
+
+  // Walk the lib directory to enumerate them in a manifest.
+  generate_lib_manifest(packages)
+}
+
+fn copy_lib_files(files: List(String)) -> snag.Result(Nil) {
+  list.try_each(files, fn(file) {
+    simplifile.copy_file(
+      filepath.join(compiled_lib, file),
+      filepath.join(public_precompiled, file),
+    )
+    |> file_error("Failed to copy file " <> file)
+  })
+}
+
+fn copy_lib_dirs(packages: List(String)) -> snag.Result(Nil) {
+  list.try_each(packages, fn(package) {
+    simplifile.copy_directory(
+      filepath.join(compiled_lib, package),
+      filepath.join(public_precompiled, package),
+    )
+    |> file_error("Failed to copy directory " <> package)
+  })
+}
+
+fn generate_lib_manifest(packages: List(String)) -> snag.Result(Nil) {
+  let assert Ok(pattern) = globlin.new_pattern("**/*")
+
+  use cwd <- result.try(
+    simplifile.current_directory()
+    |> file_error("Finding current directory"),
+  )
+
+  let abs_dir = filepath.join(cwd, public_precompiled)
+  use files <- result.try(
+    globlin_fs.glob_from(
+      pattern,
+      directory: abs_dir,
+      returning: globlin_fs.RegularFiles,
+    )
+    |> file_error("Walking lib files"),
+  )
+
+  let files =
+    files
+    // Make sure we turn the matched absolute paths back to relative ones.
+    |> list.map(string.drop_left(_, string.length(abs_dir) + 1))
+    |> list.sort(string.compare)
+    // Export them as a const JS array literal.
+    |> string.join("',\n  '")
+    |> string.append("export const files = [\n  '", _)
+    |> string.append("'\n];\n")
+
+  let packages =
+    packages
+    |> list.sort(string.compare)
+    // Export them as a const JS array literal.
+    |> string.join("', '")
+    |> string.append("export const packages = ['", _)
+    |> string.append("'];\n")
+
+  simplifile.write(public_precompiled <> ".js", string.append(packages, files))
+  |> file_error("Failed to write lib manifest")
+}
+
 fn copy_wasm_compiler() -> snag.Result(Nil) {
   use compiler_wasm_exists <- result.try(
     simplifile.is_directory(compiler_wasm)
@@ -114,118 +192,6 @@ fn copy_wasm_compiler() -> snag.Result(Nil) {
   |> file_error("Failed to copy compiler-wasm")
 }
 
-fn make_prelude_available() -> snag.Result(Nil) {
-  use _ <- result.try(
-    simplifile.create_directory_all(public_precompiled)
-    |> file_error("Failed to make " <> public_precompiled),
-  )
-
-  simplifile.copy_file(prelude, public_precompiled <> "/gleam.mjs")
-  |> file_error("Failed to copy prelude.mjs")
-}
-
-fn make_stdlib_available() -> snag.Result(Nil) {
-  use files <- result.try(
-    simplifile.read_directory(stdlib_sources)
-    |> file_error("Failed to read stdlib directory"),
-  )
-
-  let modules =
-    files
-    |> list.filter(fn(file) { string.ends_with(file, ".gleam") })
-    |> list.map(string.replace(_, ".gleam", ""))
-
-  use _ <- result.try(
-    generate_stdlib_bundle(modules)
-    |> snag.context("Failed to generate stdlib.js bundle"),
-  )
-
-  use _ <- result.try(
-    copy_compiled_stdlib(modules)
-    |> snag.context("Failed to copy precompiled stdlib modules"),
-  )
-
-  use _ <- result.try(
-    copy_stdlib_externals()
-    |> snag.context("Failed to copy stdlib external files"),
-  )
-
-  Ok(Nil)
-}
-
-fn copy_stdlib_externals() -> snag.Result(Nil) {
-  use files <- result.try(
-    simplifile.read_directory(stdlib_external)
-    |> file_error("Failed to read stdlib external directory"),
-  )
-  let files = list.filter(files, string.ends_with(_, ".mjs"))
-
-  list.try_each(files, fn(file) {
-    let from = stdlib_external <> "/" <> file
-    let to = public_precompiled <> "/" <> file
-    simplifile.copy_file(from, to)
-    |> file_error("Failed to copy stdlib external file " <> from)
-  })
-}
-
-fn copy_compiled_stdlib(modules: List(String)) -> snag.Result(Nil) {
-  use stdlib_dir_exists <- result.try(
-    simplifile.is_directory(stdlib_compiled)
-    |> file_error("Failed to check stdlib directory"),
-  )
-  use <- require(
-    stdlib_dir_exists,
-    "Project must have been compiled for JavaScript",
-  )
-
-  let dest = public_precompiled <> "/gleam"
-  use _ <- result.try(
-    simplifile.create_directory_all(dest)
-    |> file_error("Failed to make " <> dest),
-  )
-
-  use _ <- result.try(
-    list.try_each(modules, fn(name) {
-      let from = stdlib_compiled <> "/" <> name <> ".mjs"
-      let to = dest <> "/" <> name <> ".mjs"
-      simplifile.copy_file(from, to)
-      |> file_error("Failed to copy stdlib module " <> from)
-    }),
-  )
-
-  Ok(Nil)
-}
-
-fn generate_stdlib_bundle(modules: List(String)) -> snag.Result(Nil) {
-  use entries <- result.try(
-    list.try_map(modules, fn(name) {
-      let path = stdlib_sources <> "/" <> name <> ".gleam"
-      use code <- result.try(
-        simplifile.read(path)
-        |> file_error("Failed to read stdlib module " <> path),
-      )
-      let name = string.replace(name, ".gleam", "")
-      let code =
-        code
-        |> string.replace("\\", "\\\\")
-        |> string.replace("`", "\\`")
-        |> string.split("\n")
-        |> list.filter(fn(line) { !string.starts_with(string.trim(line), "//") })
-        |> list.filter(fn(line) { line != "" })
-        |> string.join("\n")
-
-      Ok("  \"gleam/" <> name <> "\": `" <> code <> "`")
-    }),
-  )
-
-  entries
-  |> string.join(",\n")
-  |> string.append("export default {\n", _)
-  |> string.append("\n}\n")
-  |> simplifile.write(public <> "/stdlib.js", _)
-  |> file_error("Failed to write stdlib.js")
-}
-
 fn reset_output() -> snag.Result(Nil) {
   use _ <- result.try(
     simplifile.create_directory_all(public)
@@ -237,15 +203,10 @@ fn reset_output() -> snag.Result(Nil) {
     |> file_error("Failed to read public directory"),
   )
 
-  use _ <- result.try(
-    files
-    |> list.map(string.append(public <> "/", _))
-    |> simplifile.delete_all
-    |> file_error("Failed to delete public directory"),
-  )
-
-  simplifile.copy_directory(static, public)
-  |> file_error("Failed to copy static directory")
+  files
+  |> list.map(string.append(public <> "/", _))
+  |> simplifile.delete_all
+  |> file_error("Failed to delete public directory")
 }
 
 fn require(
