@@ -95,7 +95,7 @@ function debounce(fn, delay) {
 // this first time it is as the worker is initialising.
 let workerWorking = true;
 let queuedWork = undefined;
-const worker = new Worker("/worker.js", { type: "module" });
+const worker = new Worker("worker.js", { type: "module" });
 
 function sendToWorker(code) {
   if (workerWorking) {
