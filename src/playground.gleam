@@ -279,16 +279,16 @@ fn file_error(
 
 // Shared stylesheets paths
 
-const css__gleam_common = "/common.css"
+const css__gleam_common = "common.css"
 
 /// Loads fonts and defines font sizes
-const css_fonts = "/css/fonts.css"
+const css_fonts = "css/fonts.css"
 
 /// Derives app colors for both dark & light themes from common.css variables
-const css_theme = "/css/theme.css"
+const css_theme = "css/theme.css"
 
 /// Defines layout unit variables
-const css_layout = "/css/layout.css"
+const css_layout = "css/layout.css"
 
 /// Sensitive defaults for any page
 const css_defaults_page = [css_fonts, css_theme, css__gleam_common, css_layout]
@@ -296,20 +296,20 @@ const css_defaults_page = [css_fonts, css_theme, css__gleam_common, css_layout]
 // Page stylesheet paths
 
 /// Common stylesheet for all playground pages
-const css_root = "/css/root.css"
+const css_root = "css/root.css"
 
 // Path to the css speciic to to lesson & main pages
-const css_playground_page = "/css/pages/playground.css"
+const css_playground_page = "css/pages/playground.css"
 
 // Defines code syntax highlighting for highlightJS & CodeFlash
 // based on dark / light mode and the currenly loaded color scheme
-const css_syntax_highlight = "/css/code/syntax-highlight.css"
+const css_syntax_highlight = "css/code/syntax-highlight.css"
 
 // Color schemes
 // TODO: add more color schemes
 
 /// Atom One Dark & Atom One Light colors
-const css_scheme_atom_one = "/css/code/color-schemes/atom-one.css"
+const css_scheme_atom_one = "css/code/color-schemes/atom-one.css"
 
 /// Sensitive defaults for any page needing to display Gleam code
 /// To be used alonside defaults_page
@@ -372,7 +372,7 @@ fn home_page(gleam_version: String) -> Html {
     h("script", [#("type", "gleam"), #("id", "code")], [
       htmb.dangerous_unescaped_fragment(string_builder.from_string(hello_joe)),
     ]),
-    html_script("/index.js", ScriptOptions(module: True, defer: False), []),
+    html_script("index.js", ScriptOptions(module: True, defer: False), []),
   ]
 
   let body_content = [
