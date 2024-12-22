@@ -186,7 +186,7 @@ pub fn text_link(
 /// Renders the playground's navbar as html
 pub fn navbar(gleam_version: String) -> Html {
   h("nav", [#("class", "navbar")], [
-    anchor("/", [#("class", "logo")], [
+    anchor("", [#("class", "logo")], [
       h(
         "img",
         [
