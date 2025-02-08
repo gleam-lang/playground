@@ -3,7 +3,7 @@ import gleam/io
 import gleam/list
 import gleam/result
 import gleam/string
-import gleam/string_builder
+import gleam/string_tree
 import htmb.{type Html, h}
 import playground/html.{
   ScriptOptions, html_dangerous_inline_script, html_link, html_meta,
@@ -62,8 +62,8 @@ pub fn main() {
 
     let page_html =
       home_page(version)
-      |> htmb.render_page("html")
-      |> string_builder.to_string
+      |> htmb.render_page
+      |> string_tree.to_string
 
     use _ <- result.try(ensure_directory(public))
     let path = filepath.join(public, "index.html")
@@ -370,7 +370,7 @@ fn home_page(gleam_version: String) -> Html {
   let body_scripts = [
     theme_picker_script(),
     h("script", [#("type", "gleam"), #("id", "code")], [
-      htmb.dangerous_unescaped_fragment(string_builder.from_string(hello_joe)),
+      htmb.dangerous_unescaped_fragment(string_tree.from_string(hello_joe)),
     ]),
     html_script("index.js", ScriptOptions(module: True, defer: False), []),
   ]

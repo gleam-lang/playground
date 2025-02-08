@@ -1,7 +1,7 @@
 //// Generic HTML rendering utils
 
 import gleam/list
-import gleam/string_builder
+import gleam/string_tree
 import htmb.{type Html, h, text}
 
 pub type HtmlAttribute =
@@ -54,7 +54,7 @@ pub fn html_dangerous_inline_script(
     ])
   }
   h("script", attrs, [
-    htmb.dangerous_unescaped_fragment(string_builder.from_string(content)),
+    htmb.dangerous_unescaped_fragment(string_tree.from_string(content)),
   ])
 }
 
