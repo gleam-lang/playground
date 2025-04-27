@@ -4,6 +4,7 @@
 }
 
 #playground-container {
+  display: flex;
   height: calc(100dvh - var(--navbar-height));
 }
 
@@ -21,7 +22,7 @@
   border: var(--color-divider);
   background: var(--code-background);
   flex-grow: 1;
-  min-height: fit-content;
+  height: 100%;
 }
 
 #tabs {
