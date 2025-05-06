@@ -19,7 +19,7 @@ const meta_title = "The Gleam Playground"
 
 const meta_description = "A playground for the Gleam programming language. Write, run, and share Gleam code in your browser."
 
-const meta_image = "https://gleam.run/images/og-image.png"
+const meta_image = "https://gleam.run/images/social-image.png"
 
 const meta_url = "https://play.gleam.run"
 
