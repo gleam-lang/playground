@@ -2,10 +2,7 @@
 
 set -eu
 
-version=`cat ./GLEAM_VERSION`
-
-# Ensure you update the CI Gleam version to match this
-VERSION="v1.11.0"
+version=$(cat ./GLEAM_VERSION)
 
 rm -fr wasm-compiler
 mkdir wasm-compiler

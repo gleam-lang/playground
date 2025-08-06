@@ -264,7 +264,7 @@ fn require(
 fn read_gleam_version() -> snag.Result(String) {
   gleam_version
   |> simplifile.read()
-  |> file_error("Failed to read glema version at path " <> gleam_version)
+  |> file_error("Failed to read Gleam version at path " <> gleam_version)
 }
 
 fn file_error(
