@@ -17,7 +17,7 @@ import snag
 
 const meta_title = "The Gleam Playground"
 
-const meta_description = "A playground for the Gleam programming language. Write, run, and share Gleam code in your browser."
+const meta_description = "Write, run, and share Gleam code in your browser: a playground for the Gleam programming language."
 
 const meta_image = "https://gleam.run/images/social-image.png"
 
