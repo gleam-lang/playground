@@ -2,10 +2,9 @@
 
 set -eu
 
-version=$(cat ./GLEAM_VERSION)
+project_root="$(dirname $0)/.."
+version=$(cat "${project_root}/GLEAM_VERSION")
 
-rm -fr wasm-compiler
-mkdir wasm-compiler
-cd wasm-compiler
-curl -L "https://github.com/gleam-lang/gleam/releases/download/$version/gleam-$version-browser.tar.gz" | tar xz
-cd ..
+rm -fr "${project_root}/wasm-compiler"
+mkdir "${project_root}/wasm-compiler"
+curl -L "https://github.com/gleam-lang/gleam/releases/download/$version/gleam-$version-browser.tar.gz" | tar xz -C "${project_root}/wasm-compiler"
