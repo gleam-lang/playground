@@ -154,6 +154,11 @@ CodeFlask mappings
   ); /* Makes the text input cursor visible in dark mode */
 }
 
+.codeflask .codeflask__lines {
+  background: var(--code-background);
+  color: var(--code-token-comment);
+}
+
 .codeflask {
   background: var(--code-background);
   color: var(--code-token-base);
