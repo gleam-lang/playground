@@ -46,14 +46,11 @@ async function compileEval(code) {
   try {
     project.writeModule("main", code);
     project.compilePackage("javascript");
-    const js = project.readCompiledJavaScript("main");
+    result.js = project.readCompiledJavaScript("main");
     project.compilePackage("erlang");
-    const erlang = project.readCompiledErlang("main");
-    const main = await loadProgram(js);
+    result.erlang = project.readCompiledErlang("main");
+    const main = await loadProgram(result.js);
     if (main) main();
-
-    result.js = js;
-    result.erlang = erlang;
   } catch (error) {
     console.error(error);
     result.error = error.toString();
