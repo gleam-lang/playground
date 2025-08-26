@@ -106,7 +106,7 @@ fn copy_wasm_compiler() -> snag.Result(Nil) {
   )
 
   use <- require(
-    list.length(compiler_was_downloaded) > 0,
+    compiler_was_downloaded != [],
     "compiler-wasm must have been compiled",
   )
 
