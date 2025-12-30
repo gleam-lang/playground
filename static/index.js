@@ -81,6 +81,11 @@ const editor = new CodeFlask("#editor-target", {
 editor.addLanguage("gleam", prismGrammar);
 editor.updateCode(initialCode);
 
+// Force re-highlight after Prism is fully initialized
+setTimeout(() => {
+  requestAnimationFrame(() => editor.updateCode(editor.getCode()));
+}, 50);
+
 function debounce(fn, delay) {
   let timer = null;
   return (...args) => {
