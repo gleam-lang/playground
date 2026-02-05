@@ -56,12 +56,30 @@ function clearElement(target) {
 
 function appendCode(target, content, className) {
   if (!content) return;
+  const escapedContent = escapeHtml(content);
+  const formattedContent = highlightEchoPath(escapedContent);
   const element = document.createElement("pre");
   const code = document.createElement("code");
-  code.textContent = content;
+  code.innerHTML = formattedContent;
   element.appendChild(code);
   element.className = className;
   target.appendChild(element);
+}
+
+function escapeHtml(content) {
+  const div = document.createElement("div");
+  div.textContent = content;
+  return div.innerHTML;
+}
+
+function highlightEchoPath(content) {
+  if (typeof content !== "string") return content;
+  const pathRegex = /(^src\/main.gleam:\d+$)/gm;
+  const newContent = content.replace(
+    pathRegex,
+    '<span class="echo-path">$1</span>',
+  );
+  return newContent;
 }
 
 function highlightOutput(target, childClassName) {

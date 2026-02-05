@@ -182,3 +182,7 @@
 .mb-0 {
   margin-bottom: 0;
 }
+
+.echo-path {
+  color: var(--code-token-comment);
+}
