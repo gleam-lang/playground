@@ -95,6 +95,7 @@ function highlightOutput(target, childClassName) {
 const editor = new CodeFlask("#editor-target", {
   language: "gleam",
   defaultTheme: false,
+  lineNumbers: true,
 });
 editor.addLanguage("gleam", prismGrammar);
 editor.updateCode(initialCode);
