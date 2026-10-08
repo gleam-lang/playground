@@ -88,7 +88,8 @@ pub fn theme_picker() -> Html {
 }
 
 // This script is inlined in the response to avoid FOUC when applying the theme
-pub const theme_picker_js = "
+pub const theme_picker_js =
+  "
 const mediaPrefersDarkTheme = window.matchMedia('(prefers-color-scheme: dark)');
 const themeStorageKey = 'theme';
 
