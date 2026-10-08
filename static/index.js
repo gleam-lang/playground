@@ -107,26 +107,40 @@ function debounce(fn, delay) {
   };
 }
 
+const worker = new Worker("worker.js", { type: "module" });
+const workerReady = new Promise((resolve) => (worker.onmessage = resolve));
+
+async function callWorker(action, code) {
+  await workerReady;
+  const { port1, port2 } = new MessageChannel();
+  const reply = new Promise((resolve) => {
+    port1.onmessage = (event) => resolve(event.data);
+  });
+  worker.postMessage({ action, code }, [port2]);
+  return reply;
+}
+
 // Whether the worker is currently working or not, used to avoid sending
 // multiple messages to the worker at once.
-// This will be true when the worker is compiling and executing the code, but
-// this first time it is as the worker is initialising.
-let workerWorking = true;
+let workerWorking = false;
 let queuedWork = undefined;
-const worker = new Worker("worker.js", { type: "module" });
 
-function sendToWorker(code) {
+async function compile(code) {
   if (workerWorking) {
     queuedWork = code;
     return;
   }
   workerWorking = true;
-  worker.postMessage(code);
+  showResult(await callWorker("compile", code));
+  workerWorking = false;
+
+  // Deal with any queued work
+  const next = queuedWork;
+  queuedWork = undefined;
+  if (next) compile(next);
 }
 
-worker.onmessage = (event) => {
-  // Handle the result of the compilation and execution
-  const result = event.data;
+function showResult(result) {
   clearElement(outputEl);
   clearElement(compiledJavascriptEl);
   clearElement(compiledErlangEl);
@@ -148,14 +162,9 @@ worker.onmessage = (event) => {
 
   highlightOutput(compiledJavascriptEl, "javascript");
   highlightOutput(compiledErlangEl, "erlang");
+}
 
-  // Deal with any queued work
-  workerWorking = false;
-  if (queuedWork) sendToWorker(queuedWork);
-  queuedWork = undefined;
-};
-
-editor.onUpdate(debounce((code) => sendToWorker(code), 200));
+editor.onUpdate(debounce(compile, 200));
 
 /**
  * Hashed object format:
@@ -219,3 +228,19 @@ function share() {
   }, 1000);
 }
 shareButton.addEventListener("click", share);
+
+const formatButton = document.querySelector("#format-button");
+
+async function format() {
+  const source = editor.getCode();
+  const { formatted, error } = await callWorker("format", source);
+  if (error) {
+    showResult({ error });
+    return;
+  }
+  // Don't clobber edits made while the formatter was running
+  if (formatted !== source && editor.getCode() === source) {
+    editor.updateCode(formatted);
+  }
+}
+formatButton.addEventListener("click", format);
