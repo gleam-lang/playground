@@ -71,9 +71,18 @@ async function compileEval(code) {
   return result;
 }
 
-self.onmessage = async (event) => {
-  const result = compileEval(event.data);
-  postMessage(await result);
+function formatSource(code) {
+  try {
+    return { formatted: compiler.wasm.format_source(code) };
+  } catch (error) {
+    return { error: String(error) };
+  }
+}
+
+const actions = { compile: compileEval, format: formatSource };
+
+self.onmessage = async ({ data: { action, code }, ports: [port] }) => {
+  port.postMessage(await actions[action](code));
 };
 
 // Send an initial message to the main thread to indicate that the worker is

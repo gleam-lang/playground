@@ -17,7 +17,8 @@ import snag
 
 const meta_title = "The Gleam Playground"
 
-const meta_description = "Write, run, and share Gleam code in your browser: a playground for the Gleam programming language."
+const meta_description =
+  "Write, run, and share Gleam code in your browser: a playground for the Gleam programming language."
 
 const meta_image = "https://playground.gleam.run/share-preview.png"
 
@@ -43,7 +44,8 @@ const compiler_wasm = "./wasm-compiler"
 
 const gleam_version = "GLEAM_VERSION"
 
-const hello_joe = "import gleam/io
+const hello_joe =
+  "import gleam/io
 
 pub fn main() {
   io.println(\"Hello, Joe!\")
@@ -384,6 +386,7 @@ fn home_page(gleam_version: String) -> Html {
         h("div", [#("id", "playground-content")], [
           h("section", [#("id", "editor")], [
             h("div", [#("id", "editor-target")], []),
+            h("button", [#("id", "format-button")], [htmb.text("Format")]),
           ]),
           h("div", [#("id", "output-container")], [
             h("div", [#("id", "tabs")], [
