@@ -230,10 +230,12 @@ function share() {
   const compressed = makeV1Hash(code);
   const url = `${window.location.origin}${window.location.pathname}#${compressed}`;
   navigator.clipboard.writeText(url);
-  const before = shareButton.textContent;
-  shareButton.textContent = "Link copied!";
+  const before = shareButton.getAttribute("aria-label");
+  shareButton.setAttribute("aria-label", "Link copied!");
+  shareButton.classList.add("show-tooltip");
   setTimeout(() => {
-    shareButton.textContent = before;
+    shareButton.setAttribute("aria-label", before);
+    shareButton.classList.remove("show-tooltip");
   }, 1000);
 }
 shareButton.addEventListener("click", share);

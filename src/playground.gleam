@@ -9,7 +9,9 @@ import playground/html.{
   ScriptOptions, html_dangerous_inline_script, html_link, html_meta,
   html_meta_prop, html_script, html_stylesheet, html_title,
 }
-import playground/widgets.{output_container, output_tab}
+import playground/widgets.{
+  icon_broom, icon_button, icon_share, output_container, output_tab,
+}
 import simplifile
 import snag
 
@@ -386,7 +388,10 @@ fn home_page(gleam_version: String) -> Html {
         h("div", [#("id", "playground-content")], [
           h("section", [#("id", "editor")], [
             h("div", [#("id", "editor-target")], []),
-            h("button", [#("id", "format-button")], [htmb.text("Format")]),
+            h("div", [#("id", "editor-buttons")], [
+              icon_button("format-button", "Format code", icon_broom()),
+              icon_button("share-button", "Share code", icon_share()),
+            ]),
           ]),
           h("div", [#("id", "output-container")], [
             h("div", [#("id", "tabs")], [
@@ -403,7 +408,6 @@ fn home_page(gleam_version: String) -> Html {
                 "javascript",
                 False,
               ),
-              h("button", [#("id", "share-button")], [htmb.text("Share code")]),
             ]),
             output_container("output", "output"),
             output_container("compiled-erlang", "output language-erlang"),

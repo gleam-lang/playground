@@ -107,7 +107,8 @@ html.theme-light .theme-button.-light {
   display: none;
 }
 
-.theme-button {
+.theme-button,
+.icon-button {
   appearance: none;
   margin: 0;
   border: 0;
