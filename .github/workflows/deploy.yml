@@ -28,7 +28,7 @@ jobs:
         with:
           otp-version: "29"
           # Ensure you update the ./GLEAM_VERSION to match this
-          gleam-version: "1.18.1"
+          gleam-version: "1.19.1"
           rebar3-version: "3"
 
       - name: Download WASM version of Gleam compiler
