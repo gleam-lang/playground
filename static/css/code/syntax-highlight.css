@@ -66,73 +66,57 @@ highlightJS mappings
 pre.hljs {
   background: var(--code-background);
 }
-
 .hljs {
   color: var(--color-token-base);
 }
-
 .hljs-punctuation {
   /* and operators */
   color: var(--code-token-punctuation);
 }
-
 .hljs-variable,
 .hljs-name {
   color: var(--code-token-base);
 }
-
 .hljs-function-param {
   font-weight: bold;
   font-style: italic;
   color: var(--color-token-base);
 }
-
 .hljs-operator {
   color: var(--code-token-operator);
 }
-
 .hljs-keyword {
   color: var(--code-token-keyword);
 }
-
 .hljs-boolean {
   color: var(--code-token-boolean);
 }
-
 .hljs-number {
   color: var(--code-token-number);
 }
-
 .hljs-type {
   color: var(--code-token-type);
 }
-
 .hljs-function.function-name {
   color: var(--code-token-function-name);
 }
-
 .hljs-function.function-call {
   font-style: italic;
 }
-
 .hljs-function.function-params {
   color: var(--code-token-function);
 }
-
 .hljs-attribute {
   color: var(--code-token-attribute);
   font-style: italic;
 }
-
 .hljs-string {
   color: var(--code-token-string);
 }
-
 .hljs-comment {
   color: var(--code-token-comment);
   font-style: italic;
 }
-
 /* 
 .hljs-symbol,
 .hljs-bullet,
@@ -150,11 +134,9 @@ pre.hljs {
 .hljs-emphasis {
   font-style: italic;
 }
-
 .hljs-strong {
   font-weight: bold;
 }
-
 .hljs-link {
   text-decoration: underline;
 }
@@ -166,10 +148,10 @@ CodeFlask mappings
 */
 
 .codeflask .codeflask__textarea {
-  color: var(--code-background);
-  /* Prevents rendering artifacts in dark mode */
-  caret-color: var(--code-token-base);
-  /* Makes the text input cursor visible in dark mode */
+  color: var(--code-background); /* Prevents rendering artifacts in dark mode */
+  caret-color: var(
+    --code-token-base
+  ); /* Makes the text input cursor visible in dark mode */
 }
 
 .codeflask .codeflask__lines {
@@ -197,6 +179,7 @@ CodeFlask mappings
   top: 5px;
   bottom: 5px;
   width: 3px;
+  border-radius: 2px;
   background: var(--brand-error);
 }
 
@@ -204,51 +187,39 @@ CodeFlask mappings
   background: var(--code-background);
   color: var(--code-token-base);
 }
-
 .codeflask .token.punctuation {
   color: var(--code-token-punctuation);
 }
-
 .codeflask .token.keyword {
   color: var(--code-token-keyword);
 }
-
 .codeflask .token.operator {
   color: var(--code-token-operator);
 }
-
 .codeflask .token.string {
   color: var(--code-token-string);
 }
-
 .codeflask .token.comment {
   color: var(--code-token-comment);
 }
-
 .codeflask .token.function {
   color: var(--code-token-function);
 }
-
 .codeflask .token.boolean {
   color: var(--code-token-boolean);
 }
-
 .codeflask .token.number {
   color: var(--code-token-number);
 }
-
 .codeflask .token.selector {
   color: var(--code-token-selector);
 }
-
 .codeflask .token.property {
   color: var(--code-token-property);
 }
-
 .codeflask .token.tag {
   color: var(--code-token-tag);
 }
-
 .codeflask .token.attr-value {
   color: var(--code-token-attr-value);
 }
