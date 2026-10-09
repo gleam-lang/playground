@@ -154,6 +154,35 @@ CodeFlask mappings
   ); /* Makes the text input cursor visible in dark mode */
 }
 
+.codeflask .codeflask__lines {
+  background: var(--code-background);
+  color: var(--code-token-punctuation);
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
+  font-size: 13px;
+  line-height: 20px;
+  padding: var(--gap) 4px;
+}
+
+.codeflask__lines__line {
+  position: relative;
+}
+
+.codeflask__lines__line.line_has_error {
+  color: var(--brand-error);
+}
+
+.codeflask__lines__line.line_has_error:before {
+  content: '';
+  display: block;
+  position: absolute;
+  left: 0;
+  top: 5px;
+  bottom: 5px;
+  width: 3px;
+  border-radius: 2px;
+  background: var(--brand-error);
+}
+
 .codeflask {
   background: var(--code-background);
   color: var(--code-token-base);

@@ -134,6 +134,14 @@ worker.onmessage = (event) => {
     appendCode(outputEl, result.log, "log");
   }
   if (result.error) {
+	const lines = [...result.error.matchAll(/\.gleam:(\d+)/gi)].map(
+	  (x) => x[1],
+	);
+	for (const line of lines) {
+	  document
+		.querySelector(`.codeflask__lines__line:nth-of-type(${line})`)
+		.classList.add("line_has_error");
+	}
     appendCode(outputEl, result.error, "error");
   }
   if (result.js) {
